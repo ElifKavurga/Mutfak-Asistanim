@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+
+<html class="light" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MutfakAsistanım - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-tint": "#536443",
+                        "outline-variant": "#afb3b0",
+                        "inverse-surface": "#0c0f0e",
+                        "on-primary-fixed-variant": "#506140",
+                        "on-secondary-container": "#4a553e",
+                        "on-secondary": "#f1fedf",
+                        "surface-bright": "#f9f9f7",
+                        "primary-fixed-dim": "#c7dbb1",
+                        "tertiary-container": "#f9eca6",
+                        "secondary-dim": "#4b5740",
+                        "secondary-fixed": "#dae7c9",
+                        "primary-container": "#d5e9bf",
+                        "inverse-on-surface": "#9c9d9b",
+                        "secondary-fixed-dim": "#ccd9bb",
+                        "inverse-primary": "#e3f8cc",
+                        "background": "#f9f9f7",
+                        "surface-variant": "#e0e3e0",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#e0e3e0",
+                        "on-primary": "#edffd8",
+                        "error-container": "#fd795a",
+                        "primary": "#536443",
+                        "surface": "#f9f9f7",
+                        "tertiary-dim": "#5c541d",
+                        "on-primary-container": "#465736",
+                        "on-error-container": "#6e1400",
+                        "tertiary-fixed": "#f9eca6",
+                        "on-surface": "#2f3332",
+                        "on-error": "#fff7f6",
+                        "on-tertiary-container": "#5f5721",
+                        "surface-container": "#eceeec",
+                        "primary-dim": "#475838",
+                        "on-background": "#2f3332",
+                        "on-tertiary-fixed": "#4c4510",
+                        "tertiary": "#686028",
+                        "on-tertiary-fixed-variant": "#6a622a",
+                        "tertiary-fixed-dim": "#eade99",
+                        "outline": "#777c79",
+                        "secondary-container": "#dae7c9",
+                        "on-secondary-fixed": "#38432d",
+                        "surface-container-low": "#f3f4f2",
+                        "on-secondary-fixed-variant": "#545f48",
+                        "primary-fixed": "#d5e9bf",
+                        "secondary": "#57634b",
+                        "surface-dim": "#d7dbd8",
+                        "on-tertiary": "#fff9e6",
+                        "error-dim": "#791903",
+                        "on-primary-fixed": "#344426",
+                        "surface-container-high": "#e6e9e6",
+                        "on-surface-variant": "#5c605e",
+                        "error": "#a73b21"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9f9f7;
+            color: #2f3332;
+        }
+        h1, h2, h3 {
+            font-family: 'Manrope', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface antialiased">
+<header class="fixed top-0 w-full z-50 bg-[#f9f9f7]/80 dark:bg-stone-900/80 backdrop-blur-md flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#536443] cursor-pointer hover:bg-[#f3f4f2] p-2 rounded-full transition-colors" data-icon="menu">menu</span>
+<span class="text-xl font-extrabold text-[#536443] dark:text-[#9CAF88] font-manrope tracking-tight">MutfakAsistanım</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[#536443] cursor-pointer hover:bg-[#f3f4f2] p-2 rounded-full transition-colors" data-icon="account_circle">account_circle</span>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-7xl mx-auto space-y-12">
+<section class="grid grid-cols-1 md:grid-cols-12 gap-8 items-end">
+<div class="md:col-span-8">
+<h1 class="text-5xl font-extrabold tracking-tight text-primary leading-none mb-4">Hoş Geldin, Şef</h1>
+<p class="text-lg text-on-surface-variant max-w-lg">Mutfaktaki sürdürülebilir yolculuğunda bugün 4 ürünün dikkatini bekliyor.</p>
+</div>
+<div class="md:col-span-4 flex justify-end">
+<div class="bg-surface-container-low p-6 rounded-xl flex items-center gap-4 w-full md:w-auto">
+<div class="h-12 w-12 rounded-full bg-primary-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="eco">eco</span>
+</div>
+<div>
+<p class="text-sm font-semibold text-on-surface-variant">Haftalık Tasarruf</p>
+<p class="text-xl font-bold text-primary">₺240.00</p>
+</div>
+</div>
+</div>
+</section>
+<section class="space-y-6">
+<div class="flex items-center justify-between">
+<h2 class="text-2xl font-bold text-primary tracking-tight">Yakında Bozulacaklar</h2>
+<button class="text-primary font-semibold text-sm hover:underline">Tümünü Gör</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden group hover:bg-surface-container-low transition-colors duration-300">
+<div class="relative h-48 overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="close up of fresh ripe organic strawberries in a ceramic bowl with soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcSfQPQXqCBXnmPVnqxYrgwt0wTXgUk2AVxjArAOP6OJWS3R3HQoBOoiBdLReJdJzMZnicgTcey-8kGtjsp1hi8yvVfty7CsN43X6xPevKIJTWB5y78efhj8vRTJfNzwsDUv1ySyWSY3oQ3DjH3f9iNMjk7b9rXGTKCcxeSqjVzzD0Pg4U0w2kjl4AFqX2lilDn_RvodZVq7yi4UBYvV_9CzXlDRuotTvBsiuqfgMNssn-6-7Rbnqdvo5zAANhAqFYKsAvefy6YAA"/>
+<div class="absolute top-3 right-3 bg-[#fd795a] text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                            2 gün kaldı
+                        </div>
+</div>
+<div class="p-5 space-y-1">
+<h3 class="text-lg font-bold text-on-surface">Taze Çilek</h3>
+<p class="text-sm text-on-surface-variant">Buzdolabı • 500g</p>
+<div class="pt-4 flex gap-2">
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-[10px] font-semibold">TATLI</span>
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-[10px] font-semibold">SMOOTHIE</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden group hover:bg-surface-container-low transition-colors duration-300">
+<div class="relative h-48 overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="fresh organic green spinach leaves piled high in a rustic basket indoor soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAig8eRF1qhJKvuV4Sh_YaEXOrbpglodJd37sNF1Zmgt0ggxhJAp2F_szfOs3Vo0tB5VfGqdotVC7PBlTuBwgp9S0uTe5mw7QgyPn3HbezK4_JZXir4SoGxfxVz17H_9BYaFsGeI-0ClV8UrfesJf_RSicpHjW0zZhlFSk9Nj0dXUpsT1YgnQ8uQ9Dfltrdibnmym09rvPZoCeSo-Rd2By7L9qY5BuHxHfFwg-JTg-GzIKU32-0Ixfr2M1JVKpKuRBfjVaMbm-otAI"/>
+<div class="absolute top-3 right-3 bg-[#fd795a] text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                            1 gün kaldı
+                        </div>
+</div>
+<div class="p-5 space-y-1">
+<h3 class="text-lg font-bold text-on-surface">Ispanak</h3>
+<p class="text-sm text-on-surface-variant">Sebzelik • 1 Bağ</p>
+<div class="pt-4 flex gap-2">
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-[10px] font-semibold">YEMEK</span>
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-[10px] font-semibold">SALATA</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden group hover:bg-surface-container-low transition-colors duration-300">
+<div class="relative h-48 overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="organic whole milk in a glass bottle on a light wooden table with soft focus background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDX86Unwi9j87FTFxOHgnvnz1GtFjgdNE8faKv3paB3s9VikDo2qOo4HqVDCc9k9EB2Y8nXbtRWZoZxOYPCGeW9cM8FJ7sOCbxDVbEoSf-qx9FooQVj2LTmtwWOg01i01Lb2bRHlfuAf4-ksefriWfSaeu_flD0R3bBpogdd8yNuygbVX-_6iKt6AfjyVtqY2TCI0pjsnhODmh70xagh0HeDTz4irODuHD-woo44j0KPQRPU5TXK3-abhSoWjlDHFM2Tx-xFDMv7ek"/>
+<div class="absolute top-3 right-3 bg-[#fd795a] text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                            3 gün kaldı
+                        </div>
+</div>
+<div class="p-5 space-y-1">
+<h3 class="text-lg font-bold text-on-surface">Organik Süt</h3>
+<p class="text-sm text-on-surface-variant">Buzdolabı Kapak • 1L</p>
+<div class="pt-4 flex gap-2">
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-[10px] font-semibold">KAHVALTI</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden group hover:bg-surface-container-low transition-colors duration-300">
+<div class="relative h-48 overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="vibrant mediterranean salad with colorful vegetables in a white bowl high end food photography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMINuuB9uJJ0oAKXzMCV-1yFmGzymD7aDlchhFonfTfy6PzCdbsiFWfSM40bx_9uHgGQBaDuD1RCHySkXlw1eAoZMyHavpYivTyWLCoreCLWmfSyTdkQbSGofxW3y5-wxOsomRa0dqgnXeVlwsQfL1kkKzJoukDO3bw8EgD-K_Qwz6yhVwNJw_60SL5mot05r4RGZ-YbZ2ifKhGA4krwj8cddOBTOxUoRWs2UHfJV2vHl3uIB9ddIOIH01QORTUcOrFRnYnHjBKSM"/>
+<div class="absolute top-3 right-3 bg-[#fd795a] text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                            Bugün
+                        </div>
+</div>
+<div class="p-5 space-y-1">
+<h3 class="text-lg font-bold text-on-surface">Akdeniz Yeşillikleri</h3>
+<p class="text-sm text-on-surface-variant">Sebzelik • 200g</p>
+<div class="pt-4 flex gap-2">
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-[10px] font-semibold">DÜŞÜK ATIK</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="lg:col-span-2 space-y-6">
+<h2 class="text-2xl font-bold text-primary tracking-tight">Değerlendirme Önerileri</h2>
+<div class="bg-primary text-on-primary rounded-2xl p-8 relative overflow-hidden group cursor-pointer">
+<div class="relative z-10 space-y-4 max-w-md">
+<span class="bg-on-primary/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold tracking-widest uppercase">Günün Kurtarıcısı</span>
+<h3 class="text-3xl font-bold leading-tight">Ispanaklı ve Çilekli Bahar Salatası</h3>
+<p class="text-on-primary/80">Elinizdeki ıspanak ve çilekleri değerlendirmenin en taze yolu. Sadece 10 dakikada hazır!</p>
+<button class="bg-surface-container-lowest text-primary px-6 py-3 rounded-xl font-bold text-sm shadow-xl transition-transform active:scale-95">Tarife Git</button>
+</div>
+<div class="absolute right-[-10%] top-[-20%] w-80 h-80 rounded-full bg-primary-dim/30 blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
+</div>
+</div>
+<div class="space-y-6">
+<h2 class="text-2xl font-bold text-primary tracking-tight">Hızlı Aksiyonlar</h2>
+<div class="space-y-4">
+<div class="flex items-center gap-4 p-4 bg-surface-container-low rounded-xl hover:bg-surface-container-high transition-colors cursor-pointer">
+<div class="h-10 w-10 rounded-lg bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+</div>
+<span class="font-semibold text-on-surface">Yeni Ürün Ekle</span>
+</div>
+<div class="flex items-center gap-4 p-4 bg-surface-container-low rounded-xl hover:bg-surface-container-high transition-colors cursor-pointer">
+<div class="h-10 w-10 rounded-lg bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm">
+<span class="material-symbols-outlined" data-icon="barcode_scanner">barcode_scanner</span>
+</div>
+<span class="font-semibold text-on-surface">Barkod Tara</span>
+</div>
+<div class="flex items-center gap-4 p-4 bg-surface-container-low rounded-xl hover:bg-surface-container-high transition-colors cursor-pointer">
+<div class="h-10 w-10 rounded-lg bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm">
+<span class="material-symbols-outlined" data-icon="shopping_basket">shopping_basket</span>
+</div>
+<span class="font-semibold text-on-surface">Alışveriş Listesi</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-4 pt-2 bg-[#f9f9f7]/80 dark:bg-stone-900/80 backdrop-blur-md z-50 rounded-t-[1.5rem] shadow-[0_-4px_20px_rgba(83,100,67,0.05)]">
+<div class="flex flex-col items-center justify-center bg-[#536443] text-white rounded-2xl px-5 py-2 scale-110 duration-300 ease-out">
+<span class="material-symbols-outlined" data-icon="kitchen">kitchen</span>
+<span class="font-inter text-[10px] font-semibold">Mutfak</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#536443]/60 dark:text-stone-400 px-5 py-2 hover:text-[#536443] transition-colors">
+<span class="material-symbols-outlined" data-icon="restaurant_menu">restaurant_menu</span>
+<span class="font-inter text-[10px] font-semibold">Tarifler</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#536443]/60 dark:text-stone-400 px-5 py-2 hover:text-[#536443] transition-colors">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-inter text-[10px] font-semibold">Planla</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#536443]/60 dark:text-stone-400 px-5 py-2 hover:text-[#536443] transition-colors">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-inter text-[10px] font-semibold">Profil</span>
+</div>
+</nav>
+<div class="fixed right-6 bottom-24 z-40">
+<button class="h-16 w-16 bg-primary text-on-primary rounded-full shadow-[0_12px_32px_rgba(83,100,67,0.15)] flex items-center justify-center hover:scale-105 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="add" style="font-size: 32px;">add</span>
+</button>
+</div>
+</body></html>

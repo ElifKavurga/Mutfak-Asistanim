@@ -7,6 +7,7 @@ import '../widgets/common_text_field.dart';
 import '../widgets/decorative_background.dart';
 import 'forgot_password_screen.dart';
 import 'google_sign_in_screen.dart';
+import 'home_screen.dart';
 import 'info_pages.dart';
 import 'register_screen.dart';
 
@@ -22,7 +23,9 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
 
   void _openScreen(Widget screen) {
-    Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => screen));
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (_) => screen));
   }
 
   @override
@@ -88,20 +91,21 @@ class _LoginScreenState extends State<LoginScreen> {
                           children: [
                             _FooterLink(
                               label: 'Gizlilik',
-                              onTap: () =>
-                                  _openScreen(const PrivacyPolicyScreen()),
+                              onTap:
+                                  () =>
+                                      _openScreen(const PrivacyPolicyScreen()),
                             ),
                             const _FooterDot(),
                             _FooterLink(
                               label: 'Şartlar',
-                              onTap: () =>
-                                  _openScreen(const TermsOfUseScreen()),
+                              onTap:
+                                  () => _openScreen(const TermsOfUseScreen()),
                             ),
                             const _FooterDot(),
                             _FooterLink(
                               label: 'Yardım',
-                              onTap: () =>
-                                  _openScreen(const HelpSupportScreen()),
+                              onTap:
+                                  () => _openScreen(const HelpSupportScreen()),
                             ),
                           ],
                         ),
@@ -362,11 +366,16 @@ class _LoginForm extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
         ),
         const SizedBox(height: 12),
-        // Geçici demo giriş butonu - ileride işlev eklenecek
+        // Demo giriş geçici yönlendirme - backend sonrası değiştirilecek
         CommonButton(
           label: 'Demo Giriş',
           variant: CommonButtonVariant.secondary,
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const HomeScreen()),
+            );
+          },
         ),
         const SizedBox(height: 22),
         Row(
@@ -395,11 +404,12 @@ class _LoginForm extends StatelessWidget {
               WidgetSpan(
                 alignment: PlaceholderAlignment.middle,
                 child: TextButton(
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const RegisterScreen(),
-                    ),
-                  ),
+                  onPressed:
+                      () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const RegisterScreen(),
+                        ),
+                      ),
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     minimumSize: Size.zero,
