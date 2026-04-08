@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../widgets/action_tile.dart';
+import '../widgets/dashboard_bottom_nav.dart';
 import '../widgets/product_card.dart';
 import '../widgets/suggestion_card.dart';
+import 'add_product_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -57,6 +59,12 @@ class HomeScreen extends StatelessWidget {
       icon: Icons.shopping_basket_rounded,
     ),
   ];
+
+  void _openAddProduct(BuildContext context) {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (_) => const AddProductScreen()));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -184,7 +192,11 @@ class HomeScreen extends StatelessWidget {
                                     child: ActionTile(
                                       icon: action.icon,
                                       label: action.label,
-                                      onTap: () {},
+                                      onTap: () {
+                                        if (action.label == 'Yeni Ürün Ekle') {
+                                          _openAddProduct(context);
+                                        }
+                                      },
                                     ),
                                   ),
                                 ),
@@ -201,7 +213,9 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: const _DashboardBottomNav(),
+      bottomNavigationBar: const DashboardBottomNav(
+        activeTab: DashboardTab.kitchen,
+      ),
       floatingActionButton: Container(
         decoration: const BoxDecoration(
           shape: BoxShape.circle,
@@ -214,7 +228,7 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
         child: FloatingActionButton(
-          onPressed: () {},
+          onPressed: () => _openAddProduct(context),
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.onPrimary,
           elevation: 0,
@@ -354,91 +368,6 @@ class _SectionHeader extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _DashboardBottomNav extends StatelessWidget {
-  const _DashboardBottomNav();
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(14, 0, 14, 14),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        decoration: BoxDecoration(
-          color: AppColors.background.withValues(alpha: 0.92),
-          borderRadius: BorderRadius.circular(28),
-          boxShadow: const [
-            BoxShadow(
-              color: AppColors.shadow,
-              blurRadius: 22,
-              offset: Offset(0, -4),
-            ),
-          ],
-        ),
-        child: const Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _BottomNavItem(
-              icon: Icons.kitchen_rounded,
-              label: 'Mutfak',
-              active: true,
-            ),
-            _BottomNavItem(
-              icon: Icons.restaurant_menu_rounded,
-              label: 'Tarifler',
-            ),
-            _BottomNavItem(icon: Icons.calendar_today_rounded, label: 'Planla'),
-            _BottomNavItem(icon: Icons.person_rounded, label: 'Profil'),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _BottomNavItem extends StatelessWidget {
-  const _BottomNavItem({
-    required this.icon,
-    required this.label,
-    this.active = false,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool active;
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-      decoration: BoxDecoration(
-        color: active ? AppColors.primary : Colors.transparent,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            color: active ? AppColors.onPrimary : AppColors.primary,
-            size: 22,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: textTheme.labelSmall?.copyWith(
-              color: active ? AppColors.onPrimary : AppColors.primary,
-              letterSpacing: 0.3,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

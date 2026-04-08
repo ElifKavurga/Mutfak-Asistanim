@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'screens/add_product_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/splash_screen.dart';
@@ -20,6 +21,7 @@ class KitchenAssistantApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       home: const SplashScreen(),
       routes: {
+        AddProductScreen.routeName: (context) => const AddProductScreen(),
         HomeScreen.routeName: (context) => const HomeScreen(),
         OnboardingScreen.routeName: (context) => const OnboardingScreen(),
       },
