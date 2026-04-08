@@ -6,6 +6,7 @@ import '../widgets/dashboard_bottom_nav.dart';
 import '../widgets/product_card.dart';
 import '../widgets/suggestion_card.dart';
 import 'add_product_screen.dart';
+import 'ai_camera_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -64,6 +65,12 @@ class HomeScreen extends StatelessWidget {
     Navigator.of(
       context,
     ).push(MaterialPageRoute<void>(builder: (_) => const AddProductScreen()));
+  }
+
+  void _openAiCamera(BuildContext context) {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (_) => const AiCameraScreen()));
   }
 
   @override
@@ -195,6 +202,10 @@ class HomeScreen extends StatelessWidget {
                                       onTap: () {
                                         if (action.label == 'Yeni Ürün Ekle') {
                                           _openAddProduct(context);
+                                        }
+                                        if (action.icon ==
+                                            Icons.qr_code_scanner_rounded) {
+                                          _openAiCamera(context);
                                         }
                                       },
                                     ),

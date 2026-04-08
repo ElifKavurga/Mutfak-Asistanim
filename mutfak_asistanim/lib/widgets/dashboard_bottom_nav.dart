@@ -2,15 +2,49 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 
-enum DashboardTab { kitchen, recipes, planner, profile }
+enum DashboardTab { kitchen, scan, recipes, planner, profile }
 
 class DashboardBottomNav extends StatelessWidget {
-  const DashboardBottomNav({super.key, required this.activeTab});
+  const DashboardBottomNav({
+    super.key,
+    required this.activeTab,
+    this.showScanTab = false,
+  });
 
   final DashboardTab activeTab;
+  final bool showScanTab;
 
   @override
   Widget build(BuildContext context) {
+    final items = <_NavItemData>[
+      const _NavItemData(
+        icon: Icons.kitchen_rounded,
+        label: 'Mutfak',
+        tab: DashboardTab.kitchen,
+      ),
+      if (showScanTab)
+        const _NavItemData(
+          icon: Icons.camera_alt_rounded,
+          label: 'Tara',
+          tab: DashboardTab.scan,
+        ),
+      const _NavItemData(
+        icon: Icons.restaurant_menu_rounded,
+        label: 'Tarifler',
+        tab: DashboardTab.recipes,
+      ),
+      const _NavItemData(
+        icon: Icons.calendar_today_rounded,
+        label: 'Planla',
+        tab: DashboardTab.planner,
+      ),
+      const _NavItemData(
+        icon: Icons.person_rounded,
+        label: 'Profil',
+        tab: DashboardTab.profile,
+      ),
+    ];
+
     return SafeArea(
       top: false,
       child: Container(
@@ -29,28 +63,13 @@ class DashboardBottomNav extends StatelessWidget {
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _BottomNavItem(
-              icon: Icons.kitchen_rounded,
-              label: 'Mutfak',
-              active: activeTab == DashboardTab.kitchen,
-            ),
-            _BottomNavItem(
-              icon: Icons.restaurant_menu_rounded,
-              label: 'Tarifler',
-              active: activeTab == DashboardTab.recipes,
-            ),
-            _BottomNavItem(
-              icon: Icons.calendar_today_rounded,
-              label: 'Planla',
-              active: activeTab == DashboardTab.planner,
-            ),
-            _BottomNavItem(
-              icon: Icons.person_rounded,
-              label: 'Profil',
-              active: activeTab == DashboardTab.profile,
-            ),
-          ],
+          children: items.map((item) {
+            return _BottomNavItem(
+              icon: item.icon,
+              label: item.label,
+              active: item.tab == activeTab,
+            );
+          }).toList(),
         ),
       ),
     );
@@ -98,4 +117,16 @@ class _BottomNavItem extends StatelessWidget {
       ),
     );
   }
+}
+
+class _NavItemData {
+  const _NavItemData({
+    required this.icon,
+    required this.label,
+    required this.tab,
+  });
+
+  final IconData icon;
+  final String label;
+  final DashboardTab tab;
 }
