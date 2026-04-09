@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'screens/add_product_screen.dart';
 import 'screens/ai_camera_screen.dart';
+import 'screens/discover_recipes_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/splash_screen.dart';
@@ -24,6 +25,8 @@ class KitchenAssistantApp extends StatelessWidget {
       routes: {
         AddProductScreen.routeName: (context) => const AddProductScreen(),
         AiCameraScreen.routeName: (context) => const AiCameraScreen(),
+        DiscoverRecipesScreen.routeName: (context) =>
+            const DiscoverRecipesScreen(),
         HomeScreen.routeName: (context) => const HomeScreen(),
         OnboardingScreen.routeName: (context) => const OnboardingScreen(),
       },
