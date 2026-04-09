@@ -5,6 +5,7 @@ import 'screens/ai_camera_screen.dart';
 import 'screens/discover_recipes_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/onboarding_screen.dart';
+import 'screens/recipe_detail_screen.dart';
 import 'screens/splash_screen.dart';
 import 'theme/app_theme.dart';
 
@@ -29,6 +30,7 @@ class KitchenAssistantApp extends StatelessWidget {
             const DiscoverRecipesScreen(),
         HomeScreen.routeName: (context) => const HomeScreen(),
         OnboardingScreen.routeName: (context) => const OnboardingScreen(),
+        RecipeDetailScreen.routeName: (context) => const RecipeDetailScreen(),
       },
     );
   }

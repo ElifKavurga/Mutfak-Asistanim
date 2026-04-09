@@ -16,14 +16,6 @@ class DiscoverRecipesScreen extends StatefulWidget {
 }
 
 class _DiscoverRecipesScreenState extends State<DiscoverRecipesScreen> {
-  static const List<String> _filters = [
-    'Hepsi',
-    'Kahvaltı',
-    'Vegan',
-    'Pratik',
-    'Tatlılar',
-  ];
-
   static const FeaturedRecipeData _featuredRecipe = FeaturedRecipeData(
     badge: 'Zero Waste',
     title: 'Renkli Hasat Salatası',
@@ -80,12 +72,34 @@ class _DiscoverRecipesScreenState extends State<DiscoverRecipesScreen> {
       );
 
   final TextEditingController _searchController = TextEditingController();
-  String _selectedFilter = _filters.first;
+  late final Future<List<String>> _categoriesFuture;
+  String? _selectedFilter;
+
+  @override
+  void initState() {
+    super.initState();
+    _categoriesFuture = _fetchCategories();
+    _categoriesFuture.then((categories) {
+      if (!mounted || categories.isEmpty || _selectedFilter != null) {
+        return;
+      }
+
+      setState(() {
+        _selectedFilter = categories.first;
+      });
+    });
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<List<String>> _fetchCategories() async {
+    await Future.delayed(const Duration(milliseconds: 900));
+
+    return const ['Hepsi', 'Kahvaltı', 'Vegan', 'Pratik', 'Tatlılar'];
   }
 
   @override
@@ -130,7 +144,7 @@ class _DiscoverRecipesScreenState extends State<DiscoverRecipesScreen> {
                 children: [
                   _SearchAndFilters(
                     controller: _searchController,
-                    filters: _filters,
+                    categoriesFuture: _categoriesFuture,
                     selectedFilter: _selectedFilter,
                     onFilterSelected: (filter) {
                       setState(() {
@@ -203,14 +217,14 @@ class _DiscoverRecipesScreenState extends State<DiscoverRecipesScreen> {
 class _SearchAndFilters extends StatelessWidget {
   const _SearchAndFilters({
     required this.controller,
-    required this.filters,
+    required this.categoriesFuture,
     required this.selectedFilter,
     required this.onFilterSelected,
   });
 
   final TextEditingController controller;
-  final List<String> filters;
-  final String selectedFilter;
+  final Future<List<String>> categoriesFuture;
+  final String? selectedFilter;
   final ValueChanged<String> onFilterSelected;
 
   @override
@@ -226,22 +240,46 @@ class _SearchAndFilters extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 18),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: filters.map((filter) {
-              final selected = filter == selectedFilter;
-
-              return Padding(
-                padding: const EdgeInsets.only(right: 10),
-                child: RecipeFilterChip(
-                  label: filter,
-                  selected: selected,
-                  onTap: () => onFilterSelected(filter),
+        FutureBuilder<List<String>>(
+          future: categoriesFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const SizedBox(
+                height: 42,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(strokeWidth: 2.2),
+                  ),
                 ),
               );
-            }).toList(),
-          ),
+            }
+
+            final categories = snapshot.data ?? const <String>[];
+            if (categories.isEmpty) {
+              return const SizedBox.shrink();
+            }
+
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: categories.map((filter) {
+                  final selected = filter == selectedFilter;
+
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 10),
+                    child: RecipeFilterChip(
+                      label: filter,
+                      selected: selected,
+                      onTap: () => onFilterSelected(filter),
+                    ),
+                  );
+                }).toList(),
+              ),
+            );
+          },
         ),
       ],
     );

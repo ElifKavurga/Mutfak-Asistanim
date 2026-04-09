@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../screens/recipe_detail_screen.dart';
 import '../theme/app_colors.dart';
 
 class FeaturedRecipeData {
@@ -77,110 +78,130 @@ class _FeaturedRecipeCard extends StatelessWidget {
 
   final FeaturedRecipeData recipe;
 
+  void _openRecipeDetail(BuildContext context) {
+    Navigator.of(context).pushNamed(
+      RecipeDetailScreen.routeName,
+      arguments: {
+        'title': recipe.title,
+        'duration': recipe.duration,
+        'tag': recipe.badge.toUpperCase(),
+        'gradientColors': recipe.gradientColors,
+        'icon': Icons.energy_savings_leaf_rounded,
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
     return AspectRatio(
-      aspectRatio: 1.4,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(36),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: recipe.gradientColors,
-          ),
-          boxShadow: const [
-            BoxShadow(
-              color: AppColors.shadow,
-              blurRadius: 28,
-              offset: Offset(0, 16),
-            ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            Positioned(
-              left: -16,
-              top: -18,
-              child: Container(
-                width: 150,
-                height: 150,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.12),
-                ),
+      aspectRatio: 1.34,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _openRecipeDetail(context),
+          borderRadius: BorderRadius.circular(34),
+          child: Ink(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(34),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: recipe.gradientColors,
               ),
-            ),
-            Positioned(
-              right: 18,
-              top: 18,
-              child: Container(
-                width: 112,
-                height: 112,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
-                  color: Colors.white.withValues(alpha: 0.12),
+              boxShadow: const [
+                BoxShadow(
+                  color: AppColors.shadow,
+                  blurRadius: 28,
+                  offset: Offset(0, 16),
                 ),
-                child: const Icon(
-                  Icons.eco_rounded,
-                  size: 54,
-                  color: Colors.white,
-                ),
-              ),
+              ],
             ),
-            Positioned(
-              left: 24,
-              bottom: 24,
-              right: 24,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 7,
-                    ),
+            child: Stack(
+              children: [
+                Positioned(
+                  left: -34,
+                  top: -44,
+                  child: Container(
+                    width: 180,
+                    height: 180,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.18),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      recipe.badge,
-                      style: textTheme.labelSmall?.copyWith(
-                        color: Colors.white,
-                        letterSpacing: 0.9,
-                      ),
+                      shape: BoxShape.circle,
+                      color: Colors.white.withValues(alpha: 0.12),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    recipe.title,
-                    style: textTheme.headlineLarge?.copyWith(
+                ),
+                Positioned(
+                  right: 22,
+                  top: 22,
+                  child: Container(
+                    width: 88,
+                    height: 88,
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryDim.withValues(alpha: 0.86),
+                      borderRadius: BorderRadius.circular(28),
+                    ),
+                    child: const Icon(
+                      Icons.energy_savings_leaf_rounded,
+                      size: 42,
                       color: Colors.white,
-                      fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 16,
-                    runSpacing: 10,
+                ),
+                Positioned(
+                  left: 24,
+                  bottom: 24,
+                  right: 24,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _FeatureMeta(
-                        icon: Icons.schedule_rounded,
-                        label: recipe.duration,
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 7,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.18),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          recipe.badge,
+                          style: textTheme.labelSmall?.copyWith(
+                            color: Colors.white,
+                            letterSpacing: 1.0,
+                          ),
+                        ),
                       ),
-                      _FeatureMeta(
-                        icon: Icons.energy_savings_leaf_rounded,
-                        label: recipe.sustainabilityLabel,
+                      const SizedBox(height: 16),
+                      Text(
+                        recipe.title,
+                        style: textTheme.headlineLarge?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 16,
+                        runSpacing: 10,
+                        children: [
+                          _FeatureMeta(
+                            icon: Icons.schedule_rounded,
+                            label: recipe.duration,
+                          ),
+                          _FeatureMeta(
+                            icon: Icons.energy_savings_leaf_rounded,
+                            label: recipe.sustainabilityLabel,
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -192,62 +213,94 @@ class _FeaturedInfoCard extends StatelessWidget {
 
   final FeaturedInfoCardData infoCard;
 
+  void _openRecipeDetail(BuildContext context) {
+    Navigator.of(context).pushNamed(
+      RecipeDetailScreen.routeName,
+      arguments: const {
+        'title': 'Renkli Hasat Salatası',
+        'duration': '15 dk',
+        'tag': 'ZERO WASTE',
+        'gradientColors': [Color(0xFF7BA05B), Color(0xFF36543D)],
+        'icon': Icons.energy_savings_leaf_rounded,
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    return Container(
-      constraints: const BoxConstraints(minHeight: 220),
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: AppColors.tertiaryContainer.withValues(alpha: 0.72),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _openRecipeDetail(context),
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: AppColors.tertiaryContainer),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 220),
+          child: Ink(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: AppColors.tertiaryContainer.withValues(alpha: 0.72),
+              borderRadius: BorderRadius.circular(32),
+              border: Border.all(color: AppColors.tertiaryContainer),
             ),
-            child: const Icon(
-              Icons.bolt_rounded,
-              color: AppColors.primaryDim,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 52,
+                  height: 52,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.bolt_rounded,
+                    color: AppColors.primaryDim,
+                  ),
+                ),
+                const SizedBox(height: 48),
+                Text(
+                  infoCard.title,
+                  style: textTheme.titleLarge?.copyWith(
+                    color: AppColors.primaryDim,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  infoCard.description,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                TextButton(
+                  onPressed: () => _openRecipeDetail(context),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.primaryDim,
+                    padding: EdgeInsets.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        infoCard.actionLabel,
+                        style: textTheme.labelLarge?.copyWith(
+                          color: AppColors.primaryDim,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      const Icon(Icons.arrow_forward_rounded, size: 18),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 44),
-          Text(
-            infoCard.title,
-            style: textTheme.titleLarge?.copyWith(
-              color: AppColors.primaryDim,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            infoCard.description,
-            style: textTheme.bodyMedium?.copyWith(color: AppColors.textPrimary),
-          ),
-          const SizedBox(height: 18),
-          TextButton.icon(
-            onPressed: () {},
-            style: TextButton.styleFrom(
-              foregroundColor: AppColors.primaryDim,
-              padding: EdgeInsets.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-            label: Text(
-              infoCard.actionLabel,
-              style: textTheme.labelLarge?.copyWith(color: AppColors.primaryDim),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
