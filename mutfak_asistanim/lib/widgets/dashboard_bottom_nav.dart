@@ -11,14 +11,17 @@ class DashboardBottomNav extends StatelessWidget {
   const DashboardBottomNav({
     super.key,
     required this.activeTab,
+    this.onActiveTabTap,
     this.showScanTab = true,
   });
 
   final DashboardTab activeTab;
+  final VoidCallback? onActiveTabTap;
   final bool showScanTab;
 
   void _navigateToTab(BuildContext context, DashboardTab tab) {
     if (tab == activeTab) {
+      onActiveTabTap?.call();
       return;
     }
 

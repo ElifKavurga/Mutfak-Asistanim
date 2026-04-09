@@ -7,6 +7,7 @@ import '../widgets/product_card.dart';
 import '../widgets/suggestion_card.dart';
 import 'add_product_screen.dart';
 import 'ai_camera_screen.dart';
+import 'inventory_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -54,6 +55,7 @@ class HomeScreen extends StatelessWidget {
 
   static const List<_QuickActionData> _actions = [
     _QuickActionData(label: 'Yeni Ürün Ekle', icon: Icons.add_circle_rounded),
+    _QuickActionData(label: 'Buzdolabım', icon: Icons.inventory_2_rounded),
     _QuickActionData(label: 'Barkod Tara', icon: Icons.qr_code_scanner_rounded),
     _QuickActionData(
       label: 'Alışveriş Listesi',
@@ -129,7 +131,9 @@ class HomeScreen extends StatelessWidget {
                   _SectionHeader(
                     title: 'Yakında Bozulacaklar',
                     actionLabel: 'Tümünü Gör',
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.of(context).pushNamed(InventoryScreen.routeName);
+                    },
                   ),
                   const SizedBox(height: 18),
                   GridView.builder(
@@ -202,6 +206,11 @@ class HomeScreen extends StatelessWidget {
                                       onTap: () {
                                         if (action.label == 'Yeni Ürün Ekle') {
                                           _openAddProduct(context);
+                                        }
+                                        if (action.label == 'Buzdolabım') {
+                                          Navigator.of(
+                                            context,
+                                          ).pushNamed(InventoryScreen.routeName);
                                         }
                                         if (action.icon ==
                                             Icons.qr_code_scanner_rounded) {
