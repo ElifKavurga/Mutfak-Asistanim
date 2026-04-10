@@ -8,6 +8,7 @@ import '../widgets/suggestion_card.dart';
 import 'add_product_screen.dart';
 import 'ai_camera_screen.dart';
 import 'inventory_screen.dart';
+import 'shopping_list_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -215,6 +216,12 @@ class HomeScreen extends StatelessWidget {
                                         if (action.icon ==
                                             Icons.qr_code_scanner_rounded) {
                                           _openAiCamera(context);
+                                        }
+                                        if (action.icon ==
+                                            Icons.shopping_basket_rounded) {
+                                          Navigator.of(context).pushNamed(
+                                            ShoppingListScreen.routeName,
+                                          );
                                         }
                                       },
                                     ),
