@@ -8,6 +8,7 @@ import '../widgets/suggestion_card.dart';
 import 'add_product_screen.dart';
 import 'ai_camera_screen.dart';
 import 'inventory_screen.dart';
+import 'stats_profile_screen.dart';
 import 'shopping_list_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -110,9 +111,15 @@ class HomeScreen extends StatelessWidget {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 10),
-            child: IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.account_circle_rounded),
+            child: InkResponse(
+              onTap: () {
+                Navigator.of(context).pushNamed(StatsProfileScreen.routeName);
+              },
+              radius: 24,
+              child: const Padding(
+                padding: EdgeInsets.all(4),
+                child: Icon(Icons.account_circle_rounded),
+              ),
             ),
           ),
         ],
@@ -133,7 +140,9 @@ class HomeScreen extends StatelessWidget {
                     title: 'Yakında Bozulacaklar',
                     actionLabel: 'Tümünü Gör',
                     onTap: () {
-                      Navigator.of(context).pushNamed(InventoryScreen.routeName);
+                      Navigator.of(
+                        context,
+                      ).pushNamed(InventoryScreen.routeName);
                     },
                   ),
                   const SizedBox(height: 18),
@@ -209,9 +218,9 @@ class HomeScreen extends StatelessWidget {
                                           _openAddProduct(context);
                                         }
                                         if (action.label == 'Buzdolabım') {
-                                          Navigator.of(
-                                            context,
-                                          ).pushNamed(InventoryScreen.routeName);
+                                          Navigator.of(context).pushNamed(
+                                            InventoryScreen.routeName,
+                                          );
                                         }
                                         if (action.icon ==
                                             Icons.qr_code_scanner_rounded) {

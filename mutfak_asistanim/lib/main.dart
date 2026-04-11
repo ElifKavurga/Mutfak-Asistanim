@@ -10,6 +10,7 @@ import 'screens/product_detail_screen.dart';
 import 'screens/recipe_detail_screen.dart';
 import 'screens/shopping_list_screen.dart';
 import 'screens/splash_screen.dart';
+import 'screens/stats_profile_screen.dart';
 import 'theme/app_theme.dart';
 
 void main() {
@@ -37,6 +38,7 @@ class KitchenAssistantApp extends StatelessWidget {
         ProductDetailScreen.routeName: (context) => const ProductDetailScreen(),
         RecipeDetailScreen.routeName: (context) => const RecipeDetailScreen(),
         ShoppingListScreen.routeName: (context) => const ShoppingListScreen(),
+        StatsProfileScreen.routeName: (context) => const StatsProfileScreen(),
       },
     );
   }
