@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../screens/ai_camera_screen.dart';
 import '../screens/discover_recipes_screen.dart';
 import '../screens/home_screen.dart';
+import '../screens/plan_screen.dart';
 import '../screens/stats_profile_screen.dart';
 import '../theme/app_colors.dart';
 
@@ -30,13 +31,9 @@ class DashboardBottomNav extends StatelessWidget {
       DashboardTab.kitchen => HomeScreen.routeName,
       DashboardTab.scan => AiCameraScreen.routeName,
       DashboardTab.recipes => DiscoverRecipesScreen.routeName,
+      DashboardTab.planner => PlanScreen.routeName,
       DashboardTab.profile => StatsProfileScreen.routeName,
-      DashboardTab.planner => null,
     };
-
-    if (routeName == null) {
-      return;
-    }
 
     Navigator.of(context).pushReplacementNamed(routeName);
   }

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import 'screens/add_recipe_screen.dart';
 import 'screens/add_product_screen.dart';
 import 'screens/ai_camera_screen.dart';
 import 'screens/discover_recipes_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/inventory_screen.dart';
 import 'screens/onboarding_screen.dart';
+import 'screens/plan_screen.dart';
 import 'screens/product_detail_screen.dart';
 import 'screens/recipe_detail_screen.dart';
 import 'screens/shopping_list_screen.dart';
@@ -28,6 +30,7 @@ class KitchenAssistantApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       home: const SplashScreen(),
       routes: {
+        AddRecipeScreen.routeName: (context) => const AddRecipeScreen(),
         AddProductScreen.routeName: (context) => const AddProductScreen(),
         AiCameraScreen.routeName: (context) => const AiCameraScreen(),
         DiscoverRecipesScreen.routeName: (context) =>
@@ -35,6 +38,7 @@ class KitchenAssistantApp extends StatelessWidget {
         HomeScreen.routeName: (context) => const HomeScreen(),
         InventoryScreen.routeName: (context) => const InventoryScreen(),
         OnboardingScreen.routeName: (context) => const OnboardingScreen(),
+        PlanScreen.routeName: (context) => const PlanScreen(),
         ProductDetailScreen.routeName: (context) => const ProductDetailScreen(),
         RecipeDetailScreen.routeName: (context) => const RecipeDetailScreen(),
         ShoppingListScreen.routeName: (context) => const ShoppingListScreen(),
