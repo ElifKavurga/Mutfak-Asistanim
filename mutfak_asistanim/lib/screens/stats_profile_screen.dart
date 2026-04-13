@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import 'settings_screen.dart';
 import '../theme/app_colors.dart';
 import '../widgets/achievement_badge.dart';
 import '../widgets/stat_mini_card.dart';
@@ -444,7 +445,8 @@ class _ProfileSummaryCard extends StatelessWidget {
             children: [
               Expanded(
                 child: FilledButton.tonalIcon(
-                  onPressed: () {},
+                  onPressed: () =>
+                      Navigator.of(context).pushNamed(SettingsScreen.routeName),
                   icon: const Icon(Icons.settings_rounded),
                   label: const Text('Düzenle'),
                   style: FilledButton.styleFrom(
