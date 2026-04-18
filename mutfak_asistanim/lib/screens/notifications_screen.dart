@@ -2,50 +2,17 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 
-class NotificationsScreen extends StatelessWidget {
+class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
 
   static const String routeName = '/notifications';
 
-  static const List<_NotificationItemData> _notifications = [
-    _NotificationItemData(
-      category: 'Son Tüketim Uyarısı',
-      title: "Organik Süt'ün SKT'si yarın doluyor!",
-      message:
-          'Sütü bugün bir tatlıda kullanarak israfın önüne geçebilirsiniz.',
-      timeLabel: '2 sa önce',
-      icon: Icons.warning_rounded,
-      accentColor: Color(0xFFA73B21),
-      iconBackgroundColor: Color(0x33FD795A),
-      backgroundColor: AppColors.surfaceContainerLow,
-      hasUnreadDot: true,
-      primaryActionLabel: 'Tarif Bul',
-      secondaryActionLabel: 'Kapat',
-    ),
-    _NotificationItemData(
-      category: 'Başarı Kazandınız',
-      title: 'Tebrikler! Kompost Kralı rozetini kazandınız.',
-      message:
-          '10 farklı sebze atığını değerlendirdiğiniz için bu rozet koleksiyonunuza eklendi.',
-      timeLabel: 'Dün',
-      icon: Icons.star_rounded,
-      accentColor: AppColors.primary,
-      iconBackgroundColor: AppColors.primaryContainer,
-      backgroundColor: AppColors.surface,
-      iconFilled: true,
-    ),
-    _NotificationItemData(
-      category: 'Mutfak İpucu',
-      title: 'Haftalık yemek planınızı oluşturmayı unutmayın.',
-      message:
-          'Pazar günü yapacağınız 15 dakikalık bir planlama, hafta içi size 5 saat kazandırır.',
-      timeLabel: '2 gün önce',
-      icon: Icons.lightbulb_rounded,
-      accentColor: Color(0xFF686028),
-      iconBackgroundColor: AppColors.tertiaryContainer,
-      backgroundColor: AppColors.surface,
-    ),
-  ];
+  @override
+  State<NotificationsScreen> createState() => _NotificationsScreenState();
+}
+
+class _NotificationsScreenState extends State<NotificationsScreen> {
+  final List<_NotificationItemData> _notifications = [];
 
   @override
   Widget build(BuildContext context) {
@@ -423,10 +390,10 @@ class _NotificationItemData {
     required this.accentColor,
     required this.iconBackgroundColor,
     required this.backgroundColor,
-    this.hasUnreadDot = false,
-    this.iconFilled = false,
-    this.primaryActionLabel,
-    this.secondaryActionLabel,
+    required this.hasUnreadDot,
+    required this.iconFilled,
+    required this.primaryActionLabel,
+    required this.secondaryActionLabel,
   });
 
   final String category;

@@ -14,13 +14,7 @@ class AddRecipeScreen extends StatefulWidget {
 }
 
 class _AddRecipeScreenState extends State<AddRecipeScreen> {
-  static const List<String> _categories = [
-    'Kahvaltı',
-    'Öğle',
-    'Akşam',
-    'Atıştırmalık',
-  ];
-
+  final List<String> _categories = const ['Tümü'];
   static const List<String> _durationUnits = ['Dakika'];
 
   final TextEditingController _recipeNameController = TextEditingController();
@@ -31,7 +25,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
     TextEditingController(),
   ];
 
-  String? _selectedCategory = _categories.first;
+  String? _selectedCategory = 'Tümü';
   String _selectedDurationUnit = _durationUnits.first;
 
   @override
@@ -118,7 +112,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                         const SizedBox(height: 24),
                         _LabeledTextField(
                           label: 'Tarif Adı',
-                          hintText: 'Örn: Fırında Sebzeli Tavuk',
+                          hintText: 'Tarif adı',
                           prefixIcon: Icons.menu_book_rounded,
                           controller: _recipeNameController,
                         ),
@@ -146,7 +140,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                                   const SizedBox(height: 22),
                                   _LabeledTextField(
                                     label: 'Kalori',
-                                    hintText: 'Örn: 420',
+                                    hintText: 'Kalori',
                                     prefixIcon:
                                         Icons.local_fire_department_rounded,
                                     controller: _calorieController,
@@ -178,7 +172,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                                 Expanded(
                                   child: _LabeledTextField(
                                     label: 'Kalori',
-                                    hintText: 'Örn: 420',
+                                    hintText: 'Kalori',
                                     prefixIcon:
                                         Icons.local_fire_department_rounded,
                                     controller: _calorieController,
@@ -222,9 +216,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                           ],
                         ),
                         const SizedBox(height: 12),
-                        ...List.generate(_ingredientControllers.length, (
-                          index,
-                        ) {
+                        ...List.generate(_ingredientControllers.length, (index) {
                           return Padding(
                             padding: EdgeInsets.only(
                               bottom: index == _ingredientControllers.length - 1
@@ -242,8 +234,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                         const SizedBox(height: 28),
                         _LabeledTextField(
                           label: 'Hazırlanış Adımları',
-                          hintText:
-                              'Adımları sırayla yazın. Örn: 1. Sebzeleri doğrayın...',
+                          hintText: 'Adımları yazın',
                           prefixIcon: Icons.format_list_numbered_rounded,
                           controller: _stepsController,
                           maxLines: 6,
@@ -511,7 +502,7 @@ class _DurationField extends StatelessWidget {
                 controller: durationController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
-                  hintText: 'Örn: 25',
+                  hintText: 'Süre',
                   prefixIcon: Icon(
                     Icons.timer_rounded,
                     color: AppColors.outline,

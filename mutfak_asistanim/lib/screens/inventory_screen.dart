@@ -19,101 +19,35 @@ class InventoryScreen extends StatefulWidget {
 }
 
 class _InventoryScreenState extends State<InventoryScreen> {
-  static const List<String> _categories = [
-    'Tümü',
-    'Sebze & Meyve',
-    'Süt Ürünleri',
-    'Et & Tavuk',
-    'İçecekler',
-  ];
+  final List<String> _categories = const ['Tümü'];
+  final List<InventoryItemData> _items = [];
+  String _selectedCategory = 'Tümü';
 
-  static const List<InventoryStatCardData> _stats = [
-    InventoryStatCardData(
+  List<InventoryStatCardData> get _stats => [
+    const InventoryStatCardData(
       title: 'Toplam Ürün',
-      value: '42',
+      value: '0',
       icon: Icons.inventory_2_rounded,
       backgroundColor: AppColors.surfaceContainerLow,
       foregroundColor: AppColors.textPrimary,
       outlineLabelColor: AppColors.outline,
     ),
-    InventoryStatCardData(
+    const InventoryStatCardData(
       title: 'Kritik Tarih',
-      value: '5',
+      value: '0',
       icon: Icons.warning_amber_rounded,
       backgroundColor: Color(0xFFF8E2DD),
       foregroundColor: Color(0xFFB94C3A),
     ),
-    InventoryStatCardData(
+    const InventoryStatCardData(
       title: 'Eco Skoru',
-      value: '%92',
+      value: '%0',
       icon: Icons.eco_rounded,
       backgroundColor: AppColors.primary,
       foregroundColor: AppColors.onPrimary,
       accentIcon: Icons.energy_savings_leaf_rounded,
     ),
   ];
-
-  static const List<InventoryItemData> _allItems = [
-    InventoryItemData(
-      name: 'Domates',
-      statusLabel: 'SKT: 2 Gün Kaldı',
-      quantity: 5,
-      unit: 'Adet',
-      category: 'Sebze & Meyve',
-      icon: Icons.local_pizza_outlined,
-      backgroundColors: [Color(0xFFE38C7D), Color(0xFFB75E57)],
-      isCritical: true,
-    ),
-    InventoryItemData(
-      name: 'Süt (%3.5 Yağ)',
-      statusLabel: 'Taze • SKT: 12.10.2023',
-      quantity: 2,
-      unit: 'Litre',
-      category: 'Süt Ürünleri',
-      icon: Icons.local_drink_rounded,
-      backgroundColors: [Color(0xFF9CB5DF), Color(0xFF6A86BF)],
-      isCritical: false,
-    ),
-    InventoryItemData(
-      name: 'Granny Smith Elma',
-      statusLabel: 'Taze • SKT: 18.10.2023',
-      quantity: 1,
-      unit: 'Kg',
-      category: 'Sebze & Meyve',
-      icon: Icons.eco_rounded,
-      backgroundColors: [Color(0xFF9CC182), Color(0xFF628B4E)],
-      isCritical: false,
-    ),
-    InventoryItemData(
-      name: 'Beyaz Peynir',
-      statusLabel: 'SKT: Yarın',
-      quantity: 450,
-      unit: 'g',
-      category: 'Süt Ürünleri',
-      icon: Icons.breakfast_dining_rounded,
-      backgroundColors: [Color(0xFFE9D4AF), Color(0xFFC0A570)],
-      isCritical: true,
-    ),
-    InventoryItemData(
-      name: 'Maden Suyu',
-      statusLabel: 'Taze • SKT: 28.10.2023',
-      quantity: 6,
-      unit: 'Adet',
-      category: 'İçecekler',
-      icon: Icons.wine_bar_rounded,
-      backgroundColors: [Color(0xFF8BC1B7), Color(0xFF4A8F88)],
-      isCritical: false,
-    ),
-  ];
-
-  String _selectedCategory = _categories.first;
-  late List<InventoryItemData> _items;
-
-  @override
-  void initState() {
-    super.initState();
-    _items = List<InventoryItemData>.from(_allItems);
-  }
 
   void _updateQuantity(int index, int delta) {
     final current = _items[index];
@@ -266,7 +200,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
                             child: InventoryItemTile(
                               item: item,
                               onIncrement: () => _updateQuantity(actualIndex, 1),
-                              onDecrement: () => _updateQuantity(actualIndex, -1),
+                              onDecrement: () =>
+                                  _updateQuantity(actualIndex, -1),
                             ),
                           );
                         }),

@@ -18,6 +18,19 @@ class ProductDetailRouteData {
     this.imageUrl,
   });
 
+  const ProductDetailRouteData.empty()
+    : title = '',
+      category = '',
+      description = '',
+      amountLabel = '',
+      expiryLabel = '',
+      freshnessValue = 0,
+      freshnessPercentLabel = '0%',
+      isCritical = false,
+      icon = Icons.inventory_2_rounded,
+      heroColors = const [Color(0xFFE0E5EA), Color(0xFF95A9C9)],
+      imageUrl = null;
+
   final String title;
   final String category;
   final String description;
@@ -30,58 +43,27 @@ class ProductDetailRouteData {
   final List<Color> heroColors;
   final String? imageUrl;
 
-  static const ProductDetailRouteData fallback = ProductDetailRouteData(
-    title: 'Organik Tam Yağlı Süt',
-    category: 'Süt Ürünleri',
-    description:
-        'Kendi çiftliğimizden, günlük ve taze. Kahve, smoothie ve kahvaltılık tariflerde kullanıma uygun.',
-    amountLabel: '850 ml',
-    expiryLabel: '2 Gün Kaldı',
-    freshnessValue: 0.15,
-    freshnessPercentLabel: '15%',
-    isCritical: true,
-    icon: Icons.local_drink_rounded,
-    heroColors: [Color(0xFFE0E5EA), Color(0xFF95A9C9)],
-  );
-
   static ProductDetailRouteData fromRoute(BuildContext context) {
     final args = ModalRoute.of(context)?.settings.arguments;
     if (args is ProductDetailRouteData) {
       return args;
     }
 
-    return fallback;
+    return const ProductDetailRouteData.empty();
   }
 }
 
-class ProductDetailScreen extends StatelessWidget {
+class ProductDetailScreen extends StatefulWidget {
   const ProductDetailScreen({super.key});
 
   static const String routeName = '/product-detail';
 
-  static const List<RecipeCardData> _recipes = [
-    RecipeCardData(
-      title: 'Ev Yapımı Vanilyalı Puding',
-      duration: '15 Dakika',
-      tag: 'HIZLI TARİF',
-      gradientColors: [Color(0xFFE2D3B0), Color(0xFFB89B63)],
-      icon: Icons.icecream_rounded,
-    ),
-    RecipeCardData(
-      title: 'Kremalı Brokoli Çorbası',
-      duration: '30 Dakika',
-      tag: 'AKŞAM YEMEĞİ',
-      gradientColors: [Color(0xFF9AB58A), Color(0xFF5F7D4D)],
-      icon: Icons.soup_kitchen_rounded,
-    ),
-    RecipeCardData(
-      title: 'Klasik Amerikan Pancake',
-      duration: '20 Dakika',
-      tag: 'KAHVALTI',
-      gradientColors: [Color(0xFFDAAE8C), Color(0xFFAF764D)],
-      icon: Icons.breakfast_dining_rounded,
-    ),
-  ];
+  @override
+  State<ProductDetailScreen> createState() => _ProductDetailScreenState();
+}
+
+class _ProductDetailScreenState extends State<ProductDetailScreen> {
+  final List<RecipeCardData> _relatedRecipes = [];
 
   @override
   Widget build(BuildContext context) {
@@ -165,7 +147,7 @@ class ProductDetailScreen extends StatelessWidget {
                     left: 24,
                     top: 94,
                     child: _HeroChip(
-                      label: 'Taze Ürün',
+                      label: product.category,
                       backgroundColor: Colors.white.withValues(alpha: 0.9),
                       foregroundColor: AppColors.primary,
                     ),
@@ -214,7 +196,10 @@ class ProductDetailScreen extends StatelessWidget {
                         },
                       ),
                       const SizedBox(height: 40),
-                      _RecipeSuggestionsSection(textTheme: textTheme),
+                      _RecipeSuggestionsSection(
+                        textTheme: textTheme,
+                        recipes: _relatedRecipes,
+                      ),
                     ],
                   ),
                 ),
@@ -312,7 +297,7 @@ class _DetailsPanel extends StatelessWidget {
                       value: product.amountLabel,
                       icon: product.icon,
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     _InfoCard(
                       label: 'SKT Durumu',
                       value: product.expiryLabel,
@@ -333,7 +318,7 @@ class _DetailsPanel extends StatelessWidget {
                       icon: product.icon,
                     ),
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: _InfoCard(
                       label: 'SKT Durumu',
@@ -493,21 +478,14 @@ class _ChefTipCard extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            'Sütünüzün son kullanma tarihi yaklaşıyorsa buz kalıplarına paylaştırıp dondurun. Bu süt küplerini sabah kahvenizde veya smoothie içinde kullanarak israfı azaltabilirsiniz.',
+            'Ürüne özel ipuçları backend entegrasyonu sonrasında burada gösterilecek.',
             style: textTheme.bodyLarge?.copyWith(
               color: AppColors.textSecondary,
               height: 1.5,
             ),
           ),
           const SizedBox(height: 18),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: const [
-              _TipTag(label: '#SıfırAtık'),
-              _TipTag(label: '#MutfakSırları'),
-            ],
-          ),
+          const Wrap(spacing: 10, runSpacing: 10),
         ],
       ),
     );
@@ -515,9 +493,13 @@ class _ChefTipCard extends StatelessWidget {
 }
 
 class _RecipeSuggestionsSection extends StatelessWidget {
-  const _RecipeSuggestionsSection({required this.textTheme});
+  const _RecipeSuggestionsSection({
+    required this.textTheme,
+    required this.recipes,
+  });
 
   final TextTheme textTheme;
+  final List<RecipeCardData> recipes;
 
   @override
   Widget build(BuildContext context) {
@@ -532,80 +514,56 @@ class _RecipeSuggestionsSection extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'Sütünüzü değerlendirebileceğiniz üç pratik öneri.',
+          'İlgili tarifler backend verisi geldiğinde burada listelenecek.',
           style: textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
         ),
         const SizedBox(height: 20),
         LayoutBuilder(
           builder: (context, constraints) {
+            if (recipes.isEmpty) {
+              return const SizedBox.shrink();
+            }
+
             if (constraints.maxWidth < 760) {
               return Column(
-                children: List.generate(ProductDetailScreen._recipes.length, (
-                  index,
-                ) {
+                children: List.generate(recipes.length, (index) {
                   return Padding(
                     padding: EdgeInsets.only(
-                      bottom: index == ProductDetailScreen._recipes.length - 1
-                          ? 0
-                          : 20,
+                      bottom: index == recipes.length - 1 ? 0 : 20,
                     ),
-                    child: RecipeGridCard(
-                      recipe: ProductDetailScreen._recipes[index],
-                    ),
+                    child: RecipeGridCard(recipe: recipes[index]),
                   );
                 }),
               );
             }
 
             if (constraints.maxWidth < 1080) {
-              return Column(
-                children: [
-                  RecipeGridCard(recipe: ProductDetailScreen._recipes.first),
-                  const SizedBox(height: 20),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: RecipeGridCard(
-                          recipe: ProductDetailScreen._recipes[1],
-                        ),
-                      ),
-                      const SizedBox(width: 18),
-                      Expanded(
-                        child: RecipeGridCard(
-                          recipe: ProductDetailScreen._recipes[2],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: recipes.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 18,
+                  mainAxisSpacing: 20,
+                  mainAxisExtent: 360,
+                ),
+                itemBuilder: (context, index) {
+                  return RecipeGridCard(recipe: recipes[index]);
+                },
               );
             }
 
             return Row(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 4,
-                  child: RecipeGridCard(
-                    recipe: ProductDetailScreen._recipes.first,
+              children: List.generate(recipes.length, (index) {
+                return Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(right: index == recipes.length - 1 ? 0 : 18),
+                    child: RecipeGridCard(recipe: recipes[index]),
                   ),
-                ),
-                const SizedBox(width: 18),
-                Expanded(
-                  flex: 3,
-                  child: RecipeGridCard(
-                    recipe: ProductDetailScreen._recipes[1],
-                  ),
-                ),
-                const SizedBox(width: 18),
-                Expanded(
-                  flex: 3,
-                  child: RecipeGridCard(
-                    recipe: ProductDetailScreen._recipes[2],
-                  ),
-                ),
-              ],
+                );
+              }),
             );
           },
         ),
@@ -894,30 +852,6 @@ class _PrimaryActionButton extends StatelessWidget {
               Icon(Icons.arrow_forward_rounded, color: foregroundColor),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _TipTag extends StatelessWidget {
-  const _TipTag({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: AppColors.secondaryContainer,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: AppColors.primaryDim,
-          fontWeight: FontWeight.w700,
         ),
       ),
     );

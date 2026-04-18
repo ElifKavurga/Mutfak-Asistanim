@@ -27,6 +27,8 @@ class _PlanScreenState extends State<PlanScreen> {
   ];
 
   int _selectedDayIndex = 0;
+  _MealData? _breakfastMeal;
+  _MealData? _dinnerMeal;
 
   List<_DayData> get _days {
     final today = DateTime.now();
@@ -45,14 +47,21 @@ class _PlanScreenState extends State<PlanScreen> {
   }
 
   void _openRecipeDetail() {
-    Navigator.of(context).pushNamed(RecipeDetailScreen.routeName);
+    Navigator.of(
+      context,
+    ).pushNamed(RecipeDetailScreen.routeName, arguments: _dinnerMeal?.routeData);
   }
 
   void _removeBreakfastMeal() {
+    setState(() {
+      _breakfastMeal = null;
+    });
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Öğün plandan çıkarıldı.')));
   }
+
+  String _caloriesFor(_MealData? meal) => meal?.caloriesLabel ?? '0 kcal';
 
   @override
   Widget build(BuildContext context) {
@@ -122,12 +131,15 @@ class _PlanScreenState extends State<PlanScreen> {
                     ),
                   ),
                   const SizedBox(height: 28),
-                  const _MealSectionHeader(
+                  _MealSectionHeader(
                     title: 'Kahvaltı',
-                    calories: '340 kcal',
+                    calories: _caloriesFor(_breakfastMeal),
                   ),
                   const SizedBox(height: 12),
-                  _BreakfastCard(onRemove: _removeBreakfastMeal),
+                  _BreakfastCard(
+                    meal: _breakfastMeal,
+                    onRemove: _removeBreakfastMeal,
+                  ),
                   const SizedBox(height: 24),
                   const _MealSectionHeader(
                     title: 'Öğle Yemeği',
@@ -136,12 +148,15 @@ class _PlanScreenState extends State<PlanScreen> {
                   const SizedBox(height: 12),
                   _EmptyMealCard(onTap: _openAddRecipe),
                   const SizedBox(height: 24),
-                  const _MealSectionHeader(
+                  _MealSectionHeader(
                     title: 'Akşam Yemeği',
-                    calories: '520 kcal',
+                    calories: _caloriesFor(_dinnerMeal),
                   ),
                   const SizedBox(height: 12),
-                  _DinnerCard(onOpenRecipe: _openRecipeDetail),
+                  _DinnerCard(
+                    meal: _dinnerMeal,
+                    onOpenRecipe: _openRecipeDetail,
+                  ),
                 ],
               ),
             ),
@@ -278,8 +293,12 @@ class _DayCard extends StatelessWidget {
 }
 
 class _BreakfastCard extends StatelessWidget {
-  const _BreakfastCard({required this.onRemove});
+  const _BreakfastCard({
+    required this.meal,
+    required this.onRemove,
+  });
 
+  final _MealData? meal;
   final VoidCallback onRemove;
 
   @override
@@ -327,8 +346,8 @@ class _BreakfastCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                const Icon(
-                  Icons.breakfast_dining_rounded,
+                Icon(
+                  meal?.icon ?? Icons.breakfast_dining_rounded,
                   color: Colors.white,
                   size: 36,
                 ),
@@ -341,14 +360,14 @@ class _BreakfastCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Yaban Mersinli Bowl',
+                  meal?.title ?? '',
                   style: textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w800,
                   ),
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Yoğurt, granola ve taze meyvelerle hafif başlangıç.',
+                  meal?.description ?? '',
                   style: textTheme.bodyMedium,
                 ),
               ],
@@ -421,15 +440,18 @@ class _EmptyMealCard extends StatelessWidget {
 }
 
 class _DinnerCard extends StatelessWidget {
-  const _DinnerCard({required this.onOpenRecipe});
+  const _DinnerCard({
+    required this.meal,
+    required this.onOpenRecipe,
+  });
 
-  static const String _imageUrl =
-      'https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=1200&q=80';
+  final _MealData? meal;
   final VoidCallback onOpenRecipe;
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final imageUrl = meal?.imageUrl;
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(30),
@@ -439,20 +461,23 @@ class _DinnerCard extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.network(
-              _imageUrl,
-              fit: BoxFit.cover,
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) {
-                  return child;
-                }
+            if (imageUrl != null && imageUrl.isNotEmpty)
+              Image.network(
+                imageUrl,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) {
+                    return child;
+                  }
 
-                return const _DinnerFallback();
-              },
-              errorBuilder: (context, error, stackTrace) {
-                return const _DinnerFallback();
-              },
-            ),
+                  return const _DinnerFallback();
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return const _DinnerFallback();
+                },
+              )
+            else
+              const _DinnerFallback(),
             const DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -476,7 +501,7 @@ class _DinnerCard extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'Izgara Somon',
+                          meal?.title ?? '',
                           style: textTheme.titleLarge?.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w800,
@@ -486,18 +511,15 @@ class _DinnerCard extends StatelessWidget {
                         Wrap(
                           spacing: 8,
                           runSpacing: 8,
-                          children: const [
-                            _TagChip(
-                              label: 'Glutensiz',
-                              backgroundColor: Color(0xD8ECEEEC),
-                              foregroundColor: AppColors.textPrimary,
-                            ),
-                            _TagChip(
-                              label: 'Yüksek Protein',
-                              backgroundColor: Color(0xD8DAE7C9),
-                              foregroundColor: AppColors.primaryDim,
-                            ),
-                          ],
+                          children: (meal?.tags ?? const <String>[])
+                              .map(
+                                (tag) => _TagChip(
+                                  label: tag,
+                                  backgroundColor: const Color(0xD8ECEEEC),
+                                  foregroundColor: AppColors.textPrimary,
+                                ),
+                              )
+                              .toList(),
                         ),
                       ],
                     ),
@@ -615,4 +637,24 @@ class _DayData {
 
   final DateTime date;
   final String label;
+}
+
+class _MealData {
+  const _MealData({
+    required this.title,
+    required this.description,
+    required this.caloriesLabel,
+    required this.icon,
+    required this.tags,
+    required this.imageUrl,
+    required this.routeData,
+  });
+
+  final String title;
+  final String description;
+  final String caloriesLabel;
+  final IconData icon;
+  final List<String> tags;
+  final String? imageUrl;
+  final Map<String, dynamic>? routeData;
 }

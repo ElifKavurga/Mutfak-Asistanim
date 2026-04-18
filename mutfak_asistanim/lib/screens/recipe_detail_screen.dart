@@ -15,6 +15,10 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   late final Map<String, dynamic> _recipe;
   late final List<String> _ingredients;
   late final List<bool> _checked;
+  late final List<_RecipeStepData> _steps;
+  late final String _servings;
+  late final String _calories;
+  late final String _chefNote;
   bool _loaded = false;
 
   @override
@@ -26,24 +30,51 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
     final args = ModalRoute.of(context)?.settings.arguments;
     final map = args is Map<String, dynamic> ? args : <String, dynamic>{};
+    final routeGradientColors =
+        (map['gradientColors'] as List?)?.whereType<Color>().toList() ??
+        const <Color>[];
+
     _recipe = {
-      'title': map['title'] ?? 'Baharatlı Avokado ve Çılbır Esintili Kahvaltı',
-      'tag': map['tag'] ?? 'KAHVALTI',
-      'duration': map['duration'] ?? '15 Dakika',
-      'icon': map['icon'] ?? Icons.breakfast_dining_rounded,
-      'gradientColors':
-          map['gradientColors'] ?? const [Color(0xFF92A87B), Color(0xFF4C673C)],
+      'title': map['title'] as String? ?? '',
+      'tag': map['tag'] as String? ?? '',
+      'duration': map['duration'] as String? ?? '',
+      'icon': map['icon'] is IconData
+          ? map['icon'] as IconData
+          : Icons.restaurant_menu_rounded,
+      'gradientColors': routeGradientColors.isEmpty
+          ? const [Color(0xFF92A87B), Color(0xFF4C673C)]
+          : routeGradientColors,
     };
-    _ingredients = const [
-      '2 adet olgun avokado',
-      '4 adet köy yumurtası',
-      '2 dilim ekşi mayalı ekmek',
-      'Süzme yoğurt (2 yemek kaşığı)',
-      'Pul biber ve taze dereotu',
-      'Zeytinyağı ve deniz tuzu',
-    ];
+    _servings = map['servings'] as String? ?? '';
+    _calories = map['calories'] as String? ?? '0 kcal';
+    _chefNote = map['chefNote'] as String? ?? '';
+    _ingredients = (map['ingredients'] as List?)
+            ?.whereType<String>()
+            .toList(growable: false) ??
+        <String>[];
+    _steps = _parseSteps(map['steps']);
     _checked = List<bool>.filled(_ingredients.length, false);
     _loaded = true;
+  }
+
+  List<_RecipeStepData> _parseSteps(Object? rawSteps) {
+    if (rawSteps is! List) {
+      return <_RecipeStepData>[];
+    }
+
+    return rawSteps
+        .map((item) {
+          if (item is Map<String, dynamic>) {
+            return _RecipeStepData(
+              title: item['title'] as String? ?? '',
+              description: item['description'] as String? ?? '',
+              showPlaceholder: item['showPlaceholder'] as bool? ?? false,
+            );
+          }
+          return null;
+        })
+        .whereType<_RecipeStepData>()
+        .toList(growable: false);
   }
 
   @override
@@ -178,7 +209,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                         ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 760),
                           child: Text(
-                            'Baharatlı Avokado ve Çılbır Esintili Kahvaltı',
+                            _recipe['title'] as String,
                             style: textTheme.displayMedium?.copyWith(
                               color: AppColors.textPrimary,
                               fontWeight: FontWeight.w800,
@@ -242,20 +273,20 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          children: const [
+          children: [
             Expanded(
               child: _StatCard(
                 icon: Icons.restaurant_rounded,
                 label: 'Porsiyon',
-                value: '2 Kişilik',
+                value: _servings,
               ),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Expanded(
               child: _StatCard(
                 icon: Icons.local_fire_department_rounded,
                 label: 'Kalori',
-                value: '340 kcal',
+                value: _calories,
               ),
             ),
           ],
@@ -330,24 +361,6 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
   Widget _buildContent(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    const steps = [
-      (
-        'Ekmekleri Hazırlayın',
-        'Ekşi mayalı ekmek dilimlerini hafifçe zeytinyağlayın ve tavada her iki yüzü de altın sarısı olana kadar kızartın. Sıcak kalmaları için bir kenara alın.',
-      ),
-      (
-        'Avokado Kreması',
-        'Olgun avokadoları deniz tuzu, karabiber ve birkaç damla limon ile ezin. Hafif dokulu kalması lezzeti artırır.',
-      ),
-      (
-        'Poşe Yumurta',
-        'Suyu kaynama noktasına getirin, girdap oluşturun ve yumurtaları tek tek ortaya kırarak 3-4 dakika pişirin.',
-      ),
-      (
-        'Birleştirme ve Servis',
-        'Kızarmış ekmeklerin üzerine süzme yoğurt, avokado karışımı ve poşe yumurtaları yerleştirin. Pul biber ve dereotu ile servis edin.',
-      ),
-    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -371,7 +384,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Yumurtaların tam kıvamında olması için suya bir damla elma sirkesi eklemeyi unutmayın. Soğuk sıkım zeytinyağı lezzeti belirgin şekilde yükseltir.',
+                _chefNote,
                 style: textTheme.bodyLarge?.copyWith(
                   color: AppColors.textSecondary,
                   fontStyle: FontStyle.italic,
@@ -386,14 +399,14 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
           style: textTheme.headlineMedium?.copyWith(color: AppColors.primary),
         ),
         const SizedBox(height: 18),
-        ...List.generate(steps.length, (index) {
+        ...List.generate(_steps.length, (index) {
           return Padding(
-            padding: EdgeInsets.only(bottom: index == steps.length - 1 ? 0 : 22),
+            padding: EdgeInsets.only(bottom: index == _steps.length - 1 ? 0 : 22),
             child: _StepCard(
               stepNumber: index + 1,
-              title: steps[index].$1,
-              description: steps[index].$2,
-              showPlaceholder: index == 2,
+              title: _steps[index].title,
+              description: _steps[index].description,
+              showPlaceholder: _steps[index].showPlaceholder,
             ),
           );
         }),
@@ -468,9 +481,9 @@ String _mapCategory(String tag) {
     case 'VEGAN':
       return 'Vegan';
     case 'LOW CARBON':
-      return '15 Dakika';
+      return 'Low Carbon';
     default:
-      return 'Kahvaltı';
+      return tag;
   }
 }
 
@@ -694,4 +707,16 @@ class _ShareButton extends StatelessWidget {
       ),
     );
   }
+}
+
+class _RecipeStepData {
+  const _RecipeStepData({
+    required this.title,
+    required this.description,
+    required this.showPlaceholder,
+  });
+
+  final String title;
+  final String description;
+  final bool showPlaceholder;
 }

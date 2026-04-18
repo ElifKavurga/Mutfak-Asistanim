@@ -8,16 +8,21 @@ import '../widgets/stat_mini_card.dart';
 import 'notifications_screen.dart';
 import 'settings_screen.dart';
 
-class StatsProfileScreen extends StatelessWidget {
+class StatsProfileScreen extends StatefulWidget {
   const StatsProfileScreen({super.key});
 
   static const String routeName = '/stats-profile';
 
-  static const List<StatMiniCardData> _stats = [
+  @override
+  State<StatsProfileScreen> createState() => _StatsProfileScreenState();
+}
+
+class _StatsProfileScreenState extends State<StatsProfileScreen> {
+  final List<StatMiniCardData> _stats = const [
     StatMiniCardData(
       title: 'Kurtarılan Öğünler',
-      value: '124',
-      subtitle: '+12 geçen haftadan',
+      value: '0',
+      subtitle: '',
       icon: Icons.restaurant_menu_rounded,
       backgroundColor: AppColors.primaryContainer,
       foregroundColor: AppColors.primaryDim,
@@ -25,8 +30,8 @@ class StatsProfileScreen extends StatelessWidget {
     ),
     StatMiniCardData(
       title: 'Ekonomik Kazanç',
-      value: '₺1.450',
-      subtitle: 'Tahmini aylık tasarruf',
+      value: '₺0',
+      subtitle: '',
       icon: Icons.savings_rounded,
       backgroundColor: AppColors.tertiaryContainer,
       foregroundColor: Color(0xFF5C541D),
@@ -34,28 +39,21 @@ class StatsProfileScreen extends StatelessWidget {
     ),
   ];
 
-  static const List<AchievementBadgeData> _achievements = [
-    AchievementBadgeData(
-      title: 'Kompost Kralı',
-      icon: Icons.compost_rounded,
-      isUnlocked: true,
-    ),
-    AchievementBadgeData(
-      title: 'Sıfır Atık',
-      icon: Icons.recycling_rounded,
-      isUnlocked: true,
-    ),
-    AchievementBadgeData(
-      title: 'Plan Ustası',
-      icon: Icons.event_note_rounded,
-      isUnlocked: false,
-    ),
-    AchievementBadgeData(
-      title: 'Bilinçli Alıcı',
-      icon: Icons.shopping_basket_rounded,
-      isUnlocked: false,
-    ),
-  ];
+  final List<AchievementBadgeData> _achievements = [];
+  final String _profileInitials = '';
+  final String _profileName = '';
+  final String _profileRole = '';
+  final String _kitchenScore = '0 XP';
+  final double _progressValue = 0;
+  final String _nextLevelLabel = '';
+  final double _savedFoodRatio = 0;
+  final double _wasteRatio = 0;
+  final String _analysisDescription =
+      'Veriler backend entegrasyonu tamamlandığında burada gösterilecek.';
+  final String _weeklyInsightBadge = '';
+  final String _weeklyInsightTitle = '';
+  final String _weeklyInsightDescription = '';
+  final String _weeklyInsightActionLabel = '';
 
   @override
   Widget build(BuildContext context) {
@@ -132,12 +130,17 @@ class StatsProfileScreen extends StatelessWidget {
                       final isWide = constraints.maxWidth >= 980;
                       final statsColumn = _StatsCardsSection(
                         stacked: isWide || constraints.maxWidth < 560,
+                        stats: _stats,
                       );
 
                       if (!isWide) {
                         return Column(
                           children: [
-                            const _FoodUsageAnalysisCard(),
+                            _FoodUsageAnalysisCard(
+                              description: _analysisDescription,
+                              savedFoodRatio: _savedFoodRatio,
+                              wasteRatio: _wasteRatio,
+                            ),
                             const SizedBox(height: 18),
                             statsColumn,
                           ],
@@ -147,9 +150,13 @@ class StatsProfileScreen extends StatelessWidget {
                       return Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Expanded(
+                          Expanded(
                             flex: 7,
-                            child: _FoodUsageAnalysisCard(),
+                            child: _FoodUsageAnalysisCard(
+                              description: _analysisDescription,
+                              savedFoodRatio: _savedFoodRatio,
+                              wasteRatio: _wasteRatio,
+                            ),
                           ),
                           const SizedBox(width: 18),
                           Expanded(flex: 5, child: statsColumn),
@@ -163,27 +170,54 @@ class StatsProfileScreen extends StatelessWidget {
                       final stacked = constraints.maxWidth < 960;
 
                       if (stacked) {
-                        return const Column(
+                        return Column(
                           children: [
-                            _ProfileSummaryCard(),
-                            SizedBox(height: 18),
-                            _AchievementsSection(),
+                            _ProfileSummaryCard(
+                              initials: _profileInitials,
+                              name: _profileName,
+                              role: _profileRole,
+                              kitchenScore: _kitchenScore,
+                              progressValue: _progressValue,
+                              nextLevelLabel: _nextLevelLabel,
+                            ),
+                            const SizedBox(height: 18),
+                            _AchievementsSection(achievements: _achievements),
                           ],
                         );
                       }
 
-                      return const Row(
+                      return Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(flex: 4, child: _ProfileSummaryCard()),
-                          SizedBox(width: 18),
-                          Expanded(flex: 8, child: _AchievementsSection()),
+                          Expanded(
+                            flex: 4,
+                            child: _ProfileSummaryCard(
+                              initials: _profileInitials,
+                              name: _profileName,
+                              role: _profileRole,
+                              kitchenScore: _kitchenScore,
+                              progressValue: _progressValue,
+                              nextLevelLabel: _nextLevelLabel,
+                            ),
+                          ),
+                          const SizedBox(width: 18),
+                          Expanded(
+                            flex: 8,
+                            child: _AchievementsSection(
+                              achievements: _achievements,
+                            ),
+                          ),
                         ],
                       );
                     },
                   ),
                   const SizedBox(height: 18),
-                  const _WeeklyInsightCard(),
+                  _WeeklyInsightCard(
+                    badgeLabel: _weeklyInsightBadge,
+                    title: _weeklyInsightTitle,
+                    description: _weeklyInsightDescription,
+                    actionLabel: _weeklyInsightActionLabel,
+                  ),
                 ],
               ),
             ),
@@ -195,31 +229,35 @@ class StatsProfileScreen extends StatelessWidget {
 }
 
 class _StatsCardsSection extends StatelessWidget {
-  const _StatsCardsSection({required this.stacked});
+  const _StatsCardsSection({
+    required this.stacked,
+    required this.stats,
+  });
 
   final bool stacked;
+  final List<StatMiniCardData> stats;
 
   @override
   Widget build(BuildContext context) {
     if (stacked) {
       return Column(
-        children: List.generate(StatsProfileScreen._stats.length, (index) {
+        children: List.generate(stats.length, (index) {
           return Padding(
             padding: EdgeInsets.only(
-              bottom: index == StatsProfileScreen._stats.length - 1 ? 0 : 18,
+              bottom: index == stats.length - 1 ? 0 : 18,
             ),
-            child: StatMiniCard(data: StatsProfileScreen._stats[index]),
+            child: StatMiniCard(data: stats[index]),
           );
         }),
       );
     }
 
     return Row(
-      children: List.generate(StatsProfileScreen._stats.length, (index) {
+      children: List.generate(stats.length, (index) {
         return Expanded(
           child: Padding(
             padding: EdgeInsets.only(right: index == 0 ? 18 : 0),
-            child: StatMiniCard(data: StatsProfileScreen._stats[index]),
+            child: StatMiniCard(data: stats[index]),
           ),
         );
       }),
@@ -228,7 +266,15 @@ class _StatsCardsSection extends StatelessWidget {
 }
 
 class _FoodUsageAnalysisCard extends StatelessWidget {
-  const _FoodUsageAnalysisCard();
+  const _FoodUsageAnalysisCard({
+    required this.description,
+    required this.savedFoodRatio,
+    required this.wasteRatio,
+  });
+
+  final String description;
+  final double savedFoodRatio;
+  final double wasteRatio;
 
   @override
   Widget build(BuildContext context) {
@@ -262,22 +308,22 @@ class _FoodUsageAnalysisCard extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                'Bu ay aldığınız ürünlerin %75\'ini israf etmeden tükettiniz. Harika bir denge yakaladınız.',
+                description,
                 style: textTheme.bodyLarge?.copyWith(
                   color: AppColors.textSecondary,
                 ),
               ),
               const SizedBox(height: 20),
-              const _LegendItem(
+              _LegendItem(
                 color: AppColors.primary,
                 label: 'Kurtarılan Gıdalar',
-                value: '%75',
+                value: '${(savedFoodRatio * 100).round()}%',
               ),
               const SizedBox(height: 12),
-              const _LegendItem(
+              _LegendItem(
                 color: AppColors.tertiaryContainer,
                 label: 'İsraf Oranı',
-                value: '%25',
+                value: '${(wasteRatio * 100).round()}%',
               ),
             ],
           );
@@ -288,9 +334,9 @@ class _FoodUsageAnalysisCard extends StatelessWidget {
               children: [
                 details,
                 const SizedBox(height: 24),
-                const Align(
+                Align(
                   alignment: Alignment.center,
-                  child: _DonutChart(value: 0.75, label: 'Verimlilik'),
+                  child: _DonutChart(value: savedFoodRatio, label: 'Verimlilik'),
                 ),
               ],
             );
@@ -301,7 +347,7 @@ class _FoodUsageAnalysisCard extends StatelessWidget {
             children: [
               Expanded(child: details),
               const SizedBox(width: 18),
-              const _DonutChart(value: 0.75, label: 'Verimlilik'),
+              _DonutChart(value: savedFoodRatio, label: 'Verimlilik'),
             ],
           );
         },
@@ -351,7 +397,21 @@ class _LegendItem extends StatelessWidget {
 }
 
 class _ProfileSummaryCard extends StatelessWidget {
-  const _ProfileSummaryCard();
+  const _ProfileSummaryCard({
+    required this.initials,
+    required this.name,
+    required this.role,
+    required this.kitchenScore,
+    required this.progressValue,
+    required this.nextLevelLabel,
+  });
+
+  final String initials;
+  final String name;
+  final String role;
+  final String kitchenScore;
+  final double progressValue;
+  final String nextLevelLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -382,7 +442,7 @@ class _ProfileSummaryCard extends StatelessWidget {
                 ),
                 alignment: Alignment.center,
                 child: Text(
-                  'ZY',
+                  initials,
                   style: textTheme.titleLarge?.copyWith(
                     color: AppColors.primaryDim,
                     fontWeight: FontWeight.w800,
@@ -395,7 +455,7 @@ class _ProfileSummaryCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Zeynep Yılmaz',
+                      name,
                       style: textTheme.headlineSmall?.copyWith(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.w800,
@@ -403,7 +463,7 @@ class _ProfileSummaryCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Master Chef',
+                      role,
                       style: textTheme.bodyMedium?.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -425,7 +485,7 @@ class _ProfileSummaryCard extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                '2.450 XP',
+                kitchenScore,
                 style: textTheme.titleMedium?.copyWith(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w800,
@@ -436,17 +496,17 @@ class _ProfileSummaryCard extends StatelessWidget {
           const SizedBox(height: 12),
           ClipRRect(
             borderRadius: BorderRadius.circular(999),
-            child: const LinearProgressIndicator(
-              value: 0.80,
+            child: LinearProgressIndicator(
+              value: progressValue,
               minHeight: 14,
               backgroundColor: AppColors.surfaceContainerHigh,
-              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
             ),
           ),
           const SizedBox(height: 10),
           Center(
             child: Text(
-              'Bir sonraki seviye için 550 XP gerekli',
+              nextLevelLabel,
               textAlign: TextAlign.center,
               style: textTheme.bodySmall?.copyWith(
                 color: AppColors.outlineVariant,
@@ -504,7 +564,9 @@ class _ProfileSummaryCard extends StatelessWidget {
 }
 
 class _AchievementsSection extends StatelessWidget {
-  const _AchievementsSection();
+  const _AchievementsSection({required this.achievements});
+
+  final List<AchievementBadgeData> achievements;
 
   @override
   Widget build(BuildContext context) {
@@ -557,7 +619,7 @@ class _AchievementsSection extends StatelessWidget {
               return GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: StatsProfileScreen._achievements.length,
+                itemCount: achievements.length,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: columns,
                   crossAxisSpacing: 14,
@@ -565,9 +627,7 @@ class _AchievementsSection extends StatelessWidget {
                   childAspectRatio: columns == 4 ? 0.98 : 1.16,
                 ),
                 itemBuilder: (context, index) {
-                  return AchievementBadge(
-                    data: StatsProfileScreen._achievements[index],
-                  );
+                  return AchievementBadge(data: achievements[index]);
                 },
               );
             },
@@ -579,7 +639,17 @@ class _AchievementsSection extends StatelessWidget {
 }
 
 class _WeeklyInsightCard extends StatelessWidget {
-  const _WeeklyInsightCard();
+  const _WeeklyInsightCard({
+    required this.badgeLabel,
+    required this.title,
+    required this.description,
+    required this.actionLabel,
+  });
+
+  final String badgeLabel;
+  final String title;
+  final String description;
+  final String actionLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -680,7 +750,7 @@ class _WeeklyInsightCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
-                      'Haftalık İpucu',
+                      badgeLabel,
                       style: textTheme.labelSmall?.copyWith(
                         color: const Color(0xFF5C541D),
                         letterSpacing: 1.1,
@@ -691,7 +761,7 @@ class _WeeklyInsightCard extends StatelessWidget {
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 620),
                     child: Text(
-                      'Yeşil Yapraklıları Nasıl Daha Uzun Saklarsınız?',
+                      title,
                       style: textTheme.displaySmall?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w800,
@@ -703,7 +773,7 @@ class _WeeklyInsightCard extends StatelessWidget {
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 620),
                     child: Text(
-                      'Ispanak ve roka gibi narin sebzeleri hafif nemli bir kağıt havlu ile kapalı kapta saklamak, ömürlerini birkaç gün uzatabilir.',
+                      description,
                       style: textTheme.bodyLarge?.copyWith(
                         color: Colors.white.withValues(alpha: 0.84),
                       ),
@@ -726,7 +796,7 @@ class _WeeklyInsightCard extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    child: const Text('Makaleyi Oku'),
+                    child: Text(actionLabel),
                   ),
                 ],
               ),

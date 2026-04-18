@@ -17,23 +17,12 @@ class AddProductScreen extends StatefulWidget {
 }
 
 class _AddProductScreenState extends State<AddProductScreen> {
-  static const List<String> _categories = [
-    'Süt ve Kahvaltılık',
-    'Sebze ve Meyve',
-    'Kuru Gıda',
-    'Et ve Tavuk',
-  ];
-
-  static const List<String> _quickSuggestions = [
-    'Yumurta',
-    'Yoğurt',
-    'Ekmek',
-    'Muz',
-  ];
+  final List<String> _categories = const ['Tümü'];
+  final List<String> _quickSuggestions = [];
 
   final TextEditingController _productNameController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
-  String? _selectedCategory;
+  String? _selectedCategory = 'Tümü';
 
   @override
   void dispose() {
@@ -129,7 +118,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       children: [
                         CustomInputField(
                           label: 'Ürün Adı',
-                          hintText: 'Örn: Organik Süt',
+                          hintText: 'Ürün adı',
                           prefixIcon: Icons.edit_note_rounded,
                           controller: _productNameController,
                         ),

@@ -9,53 +9,19 @@ import 'add_product_screen.dart';
 import 'ai_camera_screen.dart';
 import 'inventory_screen.dart';
 import 'notifications_screen.dart';
-import 'stats_profile_screen.dart';
 import 'shopping_list_screen.dart';
+import 'stats_profile_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   static const String routeName = '/home';
 
-  static const List<ProductCardData> _products = [
-    ProductCardData(
-      name: 'Taze Çilek',
-      location: 'Buzdolabı',
-      quantity: '500 g',
-      remainingLabel: '2 gün kaldı',
-      categories: ['TATLI', 'SMOOTHIE'],
-      icon: Icons.local_florist_rounded,
-      backgroundColors: [Color(0xFFEB7B86), Color(0xFFC55262)],
-    ),
-    ProductCardData(
-      name: 'Ispanak',
-      location: 'Sebzelik',
-      quantity: '1 bağ',
-      remainingLabel: '1 gün kaldı',
-      categories: ['YEMEK', 'SALATA'],
-      icon: Icons.eco_rounded,
-      backgroundColors: [Color(0xFF8EBF83), Color(0xFF5B8F57)],
-    ),
-    ProductCardData(
-      name: 'Organik Süt',
-      location: 'Kapak Rafı',
-      quantity: '1 L',
-      remainingLabel: '3 gün kaldı',
-      categories: ['KAHVALTI'],
-      icon: Icons.local_drink_rounded,
-      backgroundColors: [Color(0xFF8FA8D9), Color(0xFF6783BC)],
-    ),
-    ProductCardData(
-      name: 'Akdeniz Yeşillikleri',
-      location: 'Sebzelik',
-      quantity: '200 g',
-      remainingLabel: 'Bugün',
-      categories: ['DÜŞÜK ATIK'],
-      icon: Icons.spa_rounded,
-      backgroundColors: [Color(0xFF9DBA86), Color(0xFF6C8E54)],
-    ),
-  ];
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
 
+class _HomeScreenState extends State<HomeScreen> {
   static const List<_QuickActionData> _actions = [
     _QuickActionData(label: 'Yeni Ürün Ekle', icon: Icons.add_circle_rounded),
     _QuickActionData(label: 'Buzdolabım', icon: Icons.inventory_2_rounded),
@@ -65,6 +31,14 @@ class HomeScreen extends StatelessWidget {
       icon: Icons.shopping_basket_rounded,
     ),
   ];
+
+  final List<ProductCardData> _products = [];
+  final String _displayName = '';
+  final String _welcomeDescription = '';
+  final String _weeklySavingsLabel = '₺0';
+  final String _suggestionTitle = '';
+  final String _suggestionRecipeName = '';
+  final String _suggestionDescription = '';
 
   void _openAddProduct(BuildContext context) {
     Navigator.of(
@@ -145,15 +119,18 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _WelcomeSection(textTheme: textTheme),
+                  _WelcomeSection(
+                    textTheme: textTheme,
+                    displayName: _displayName,
+                    description: _welcomeDescription,
+                    weeklySavingsLabel: _weeklySavingsLabel,
+                  ),
                   const SizedBox(height: 32),
                   _SectionHeader(
                     title: 'Yakında Bozulacaklar',
                     actionLabel: 'Tümünü Gör',
                     onTap: () {
-                      Navigator.of(
-                        context,
-                      ).pushNamed(InventoryScreen.routeName);
+                      Navigator.of(context).pushNamed(InventoryScreen.routeName);
                     },
                   ),
                   const SizedBox(height: 18),
@@ -192,12 +169,10 @@ class HomeScreen extends StatelessWidget {
                                   ),
                                 ),
                                 const SizedBox(height: 18),
-                                const SuggestionCard(
-                                  title: 'GÜNÜN KURTARICISI',
-                                  recipeName:
-                                      'Ispanaklı ve Çilekli Bahar Salatası',
-                                  description:
-                                      'Elindeki ıspanak ve çilekleri değerlendirmenin en ferah yolu. Sadece 10 dakikada hazır!',
+                                SuggestionCard(
+                                  title: _suggestionTitle,
+                                  recipeName: _suggestionRecipeName,
+                                  description: _suggestionDescription,
                                 ),
                               ],
                             ),
@@ -287,9 +262,17 @@ class HomeScreen extends StatelessWidget {
 }
 
 class _WelcomeSection extends StatelessWidget {
-  const _WelcomeSection({required this.textTheme});
+  const _WelcomeSection({
+    required this.textTheme,
+    required this.displayName,
+    required this.description,
+    required this.weeklySavingsLabel,
+  });
 
   final TextTheme textTheme;
+  final String displayName;
+  final String description;
+  final String weeklySavingsLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -309,7 +292,7 @@ class _WelcomeSection extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Hoş Geldin, Şef',
+                    displayName.isEmpty ? 'Hoş Geldin' : 'Hoş Geldin, $displayName',
                     style: textTheme.displayMedium?.copyWith(
                       color: AppColors.primary,
                     ),
@@ -318,7 +301,7 @@ class _WelcomeSection extends StatelessWidget {
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 560),
                     child: Text(
-                      'Mutfaktaki sürdürülebilir yolculuğunda bugün 4 ürünün dikkatini bekliyor.',
+                      description,
                       style: textTheme.bodyLarge,
                     ),
                   ),
@@ -365,7 +348,7 @@ class _WelcomeSection extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '₺240',
+                            weeklySavingsLabel,
                             style: textTheme.headlineMedium?.copyWith(
                               color: AppColors.primary,
                             ),

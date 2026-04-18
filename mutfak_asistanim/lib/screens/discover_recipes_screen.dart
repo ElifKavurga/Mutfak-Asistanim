@@ -16,59 +16,28 @@ class DiscoverRecipesScreen extends StatefulWidget {
 }
 
 class _DiscoverRecipesScreenState extends State<DiscoverRecipesScreen> {
-  static const FeaturedRecipeData _featuredRecipe = FeaturedRecipeData(
-    badge: 'Zero Waste',
-    title: 'Renkli Hasat Salatası',
-    duration: '15 dk',
-    sustainabilityLabel: 'Low Carbon',
+  final FeaturedRecipeData _featuredRecipe = const FeaturedRecipeData(
+    badge: '',
+    title: '',
+    duration: '',
+    sustainabilityLabel: '',
     gradientColors: [Color(0xFF7BA05B), Color(0xFF36543D)],
   );
 
-  static const FeaturedInfoCardData _featuredInfo = FeaturedInfoCardData(
-    title: 'Hızlı & Ekolojik',
-    description:
-        'Kalan malzemelerle 10 dakikada hazırlayabileceğin özel tarif seçkisi seni bekliyor.',
-    actionLabel: 'Keşfet',
+  final FeaturedInfoCardData _featuredInfo = const FeaturedInfoCardData(
+    title: '',
+    description: '',
+    actionLabel: '',
   );
 
-  static const List<RecipeCardData> _recipes = [
-    RecipeCardData(
-      title: 'Çilekli Roka Şöleni',
-      duration: '10 dk',
-      tag: 'ZERO WASTE',
-      gradientColors: [Color(0xFFDC8C7E), Color(0xFF8D4E51)],
-      icon: Icons.local_florist_rounded,
-    ),
-    RecipeCardData(
-      title: 'Fırınlanmış Sebze Kasesi',
-      duration: '25 dk',
-      tag: 'LOW CARBON',
-      gradientColors: [Color(0xFFB9A35F), Color(0xFF6D5E30)],
-      icon: Icons.ramen_dining_rounded,
-    ),
-    RecipeCardData(
-      title: 'Ekşi Mayalı Sebzeli Pizza',
-      duration: '45 dk',
-      tag: 'VEGAN',
-      gradientColors: [Color(0xFF95B57C), Color(0xFF4A704F)],
-      icon: Icons.local_pizza_rounded,
-    ),
-    RecipeCardData(
-      title: 'Közlenmiş Balkabağı Çorbası',
-      duration: '20 dk',
-      tag: 'ZERO WASTE',
-      gradientColors: [Color(0xFFE0A15A), Color(0xFFA75A2A)],
-      icon: Icons.soup_kitchen_rounded,
-    ),
-  ];
+  final List<RecipeCardData> _recipes = [];
 
-  static const _SeasonalHighlightData _seasonalHighlight =
-      _SeasonalHighlightData(
-        eyebrow: 'Mevsimin Gözdesi',
-        title: 'Baharın En Taze Enginar Tarifleri',
-        description:
-            'Mevsiminde tüketmek hem sağlığın hem de gezegenimiz için en iyisi. Enginarın sürdürülebilir ve pratik yorumlarını keşfet.',
-        actionLabel: 'Koleksiyonu Gör',
+  final _SeasonalHighlightData _seasonalHighlight =
+      const _SeasonalHighlightData(
+        eyebrow: '',
+        title: '',
+        description: '',
+        actionLabel: '',
       );
 
   final TextEditingController _searchController = TextEditingController();
@@ -99,7 +68,7 @@ class _DiscoverRecipesScreenState extends State<DiscoverRecipesScreen> {
   Future<List<String>> _fetchCategories() async {
     await Future.delayed(const Duration(milliseconds: 900));
 
-    return const ['Hepsi', 'Kahvaltı', 'Vegan', 'Pratik', 'Tatlılar'];
+    return const ['Tümü'];
   }
 
   @override
@@ -160,7 +129,7 @@ class _DiscoverRecipesScreenState extends State<DiscoverRecipesScreen> {
                     ),
                   ),
                   const SizedBox(height: 18),
-                  const FeaturedBentoCards(
+                  FeaturedBentoCards(
                     featuredRecipe: _featuredRecipe,
                     infoCard: _featuredInfo,
                   ),
@@ -200,7 +169,7 @@ class _DiscoverRecipesScreenState extends State<DiscoverRecipesScreen> {
                     },
                   ),
                   const SizedBox(height: 40),
-                  const _SeasonalHighlightSection(data: _seasonalHighlight),
+                  _SeasonalHighlightSection(data: _seasonalHighlight),
                 ],
               ),
             ),
@@ -235,7 +204,7 @@ class _SearchAndFilters extends StatelessWidget {
         TextField(
           controller: controller,
           decoration: const InputDecoration(
-            hintText: 'Hangi malzemelerle yemek yapmak istersin?',
+            hintText: 'Ara',
             prefixIcon: Icon(Icons.search_rounded),
           ),
         ),
@@ -474,7 +443,7 @@ class _SeasonalVisual extends StatelessWidget {
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: const Text(
-                  'BAHAR SEÇKİSİ',
+                  '',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 11,

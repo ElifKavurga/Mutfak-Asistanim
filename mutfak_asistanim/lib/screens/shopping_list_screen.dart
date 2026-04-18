@@ -30,132 +30,7 @@ class _ShoppingCategory {
 }
 
 class _ShoppingListScreenState extends State<ShoppingListScreen> {
-  static const List<_ShoppingCategory> _initialCategories = [
-    _ShoppingCategory(
-      title: 'MANAV & SEBZE',
-      items: [
-        ShoppingListItemData(
-          name: 'Taze Adaçayı',
-          quantity: '1 Demet',
-          visual: ShoppingListVisual.image(
-            imageUrl:
-                'https://images.unsplash.com/photo-1515543904379-3d757afe72e4?auto=format&fit=crop&w=200&q=80',
-          ),
-        ),
-        ShoppingListItemData(
-          name: 'Baby Ispanak',
-          quantity: '200 g',
-          visual: ShoppingListVisual.icon(
-            icon: Icons.eco_rounded,
-            backgroundColor: AppColors.secondaryContainer,
-            foregroundColor: AppColors.primary,
-          ),
-        ),
-        ShoppingListItemData(
-          name: 'Cherry Domates',
-          quantity: '500 g',
-          visual: ShoppingListVisual.icon(
-            icon: Icons.spa_rounded,
-            backgroundColor: Color(0xFFF6D5CF),
-            foregroundColor: Color(0xFFB75E57),
-          ),
-        ),
-        ShoppingListItemData(
-          name: 'Avokado',
-          quantity: '2 Adet',
-          visual: ShoppingListVisual.icon(
-            icon: Icons.nature_rounded,
-            backgroundColor: Color(0xFFDDE8C8),
-            foregroundColor: AppColors.primaryDim,
-          ),
-        ),
-        ShoppingListItemData(
-          name: 'Taze Nane',
-          quantity: '1 Demet',
-          visual: ShoppingListVisual.image(
-            imageUrl:
-                'https://images.unsplash.com/photo-1628556270448-4d4e4148e54f?auto=format&fit=crop&w=200&q=80',
-          ),
-        ),
-        ShoppingListItemData(
-          name: 'Limon',
-          quantity: '4 Adet',
-          visual: ShoppingListVisual.icon(
-            icon: Icons.wb_sunny_rounded,
-            backgroundColor: AppColors.tertiaryContainer,
-            foregroundColor: Color(0xFF6A622A),
-          ),
-        ),
-      ],
-    ),
-    _ShoppingCategory(
-      title: 'SÜT & KİLER',
-      items: [
-        ShoppingListItemData(
-          name: 'Organik Yumurta',
-          quantity: '10\'lu Paket',
-          isChecked: true,
-          visual: ShoppingListVisual.image(
-            imageUrl:
-                'https://images.unsplash.com/photo-1506976785307-8732e854ad03?auto=format&fit=crop&w=200&q=80',
-          ),
-        ),
-        ShoppingListItemData(
-          name: 'Yulaf Sütü',
-          quantity: '1 Litre',
-          visual: ShoppingListVisual.icon(
-            icon: Icons.water_drop_rounded,
-            backgroundColor: AppColors.tertiaryContainer,
-            foregroundColor: AppColors.primaryDim,
-          ),
-        ),
-        ShoppingListItemData(
-          name: 'Artizan Sourdough',
-          quantity: '1 Adet',
-          visual: ShoppingListVisual.image(
-            imageUrl:
-                'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=200&q=80',
-          ),
-        ),
-        ShoppingListItemData(
-          name: 'Yoğurt',
-          quantity: '750 g',
-          visual: ShoppingListVisual.icon(
-            icon: Icons.icecream_rounded,
-            backgroundColor: Color(0xFFE4ECF9),
-            foregroundColor: Color(0xFF6783BC),
-          ),
-        ),
-        ShoppingListItemData(
-          name: 'Zeytinyağı',
-          quantity: '500 ml',
-          visual: ShoppingListVisual.icon(
-            icon: Icons.opacity_rounded,
-            backgroundColor: Color(0xFFF2E5BA),
-            foregroundColor: Color(0xFF8D6E1E),
-          ),
-        ),
-        ShoppingListItemData(
-          name: 'Parmesan',
-          quantity: '150 g',
-          visual: ShoppingListVisual.image(
-            imageUrl:
-                'https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?auto=format&fit=crop&w=200&q=80',
-          ),
-        ),
-      ],
-    ),
-  ];
-
-  late List<_ShoppingCategory> _categories;
-
-  @override
-  void initState() {
-    super.initState();
-    _categories = _initialCategories
-        .map((category) => category.copyWith(items: List.of(category.items)))
-        .toList(growable: true);
-  }
+  List<_ShoppingCategory> _categories = [];
 
   int get _totalItemCount => _categories.fold(
     0,
@@ -166,7 +41,8 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     setState(() {
       final category = _categories[categoryIndex];
       final updatedItems = List<ShoppingListItemData>.of(category.items);
-      updatedItems[itemIndex] = updatedItems[itemIndex].copyWith(isChecked: value);
+      updatedItems[itemIndex] =
+          updatedItems[itemIndex].copyWith(isChecked: value);
       _categories[categoryIndex] = category.copyWith(items: updatedItems);
     });
   }
@@ -321,7 +197,8 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
 
                           return Padding(
                             padding: EdgeInsets.only(
-                              bottom: itemIndex == category.items.length - 1 ? 0 : 12,
+                              bottom:
+                                  itemIndex == category.items.length - 1 ? 0 : 12,
                             ),
                             child: ShoppingListItem(
                               item: item,

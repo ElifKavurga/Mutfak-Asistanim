@@ -29,9 +29,10 @@ class _AiCameraScreenState extends State<AiCameraScreen>
   bool _isBusy = false;
   bool _isFlashOn = false;
   String? _cameraError;
-  String _analysisTitle = '3 Malzeme Tanındı';
+  String _analysisTitle = '';
   String _analysisDescription =
       'Canlı önizleme hazır. Backend bağlandığında analiz sonuçları burada gösterilecek.';
+  final List<_DetectionOverlayData> _detections = [];
 
   bool get _supportsCameraPlatform {
     return kIsWeb ||
@@ -367,29 +368,16 @@ class _AiCameraScreenState extends State<AiCameraScreen>
                   child: LayoutBuilder(
                     builder: (context, constraints) {
                       return Stack(
-                        children: [
-                          DetectionBox(
-                            label: 'Kırmızı Elma %98',
-                            width: constraints.maxWidth * 0.26,
-                            height: constraints.maxWidth * 0.26,
-                            left: constraints.maxWidth * 0.16,
-                            top: constraints.maxHeight * 0.20,
-                          ),
-                          DetectionBox(
-                            label: 'Taze Marul %94',
-                            width: constraints.maxWidth * 0.30,
-                            height: constraints.maxHeight * 0.22,
-                            left: constraints.maxWidth * 0.56,
-                            top: constraints.maxHeight * 0.42,
-                          ),
-                          DetectionBox(
-                            label: 'Domates %91',
-                            width: constraints.maxWidth * 0.18,
-                            height: constraints.maxWidth * 0.18,
-                            left: constraints.maxWidth * 0.40,
-                            top: constraints.maxHeight * 0.34,
-                          ),
-                        ],
+                        children: _detections.map((detection) {
+                          return DetectionBox(
+                            label: detection.label,
+                            width: constraints.maxWidth * detection.widthFactor,
+                            height:
+                                constraints.maxHeight * detection.heightFactor,
+                            left: constraints.maxWidth * detection.leftFactor,
+                            top: constraints.maxHeight * detection.topFactor,
+                          );
+                        }).toList(),
                       );
                     },
                   ),
@@ -720,4 +708,20 @@ class _HudButton extends StatelessWidget {
       ),
     );
   }
+}
+
+class _DetectionOverlayData {
+  const _DetectionOverlayData({
+    required this.label,
+    required this.widthFactor,
+    required this.heightFactor,
+    required this.leftFactor,
+    required this.topFactor,
+  });
+
+  final String label;
+  final double widthFactor;
+  final double heightFactor;
+  final double leftFactor;
+  final double topFactor;
 }

@@ -36,6 +36,22 @@ class InventoryItemData {
       isCritical: isCritical,
     );
   }
+
+  ProductDetailRouteData toRouteData() {
+    final freshnessValue = isCritical ? 0.2 : 0.0;
+    return ProductDetailRouteData(
+      title: name,
+      category: category,
+      description: '',
+      amountLabel: '$quantity $unit',
+      expiryLabel: statusLabel,
+      freshnessValue: freshnessValue,
+      freshnessPercentLabel: '${(freshnessValue * 100).round()}%',
+      isCritical: isCritical,
+      icon: icon,
+      heroColors: backgroundColors,
+    );
+  }
 }
 
 class InventoryItemTile extends StatelessWidget {
@@ -62,7 +78,9 @@ class InventoryItemTile extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
         onTap: () {
-          Navigator.of(context).pushNamed(ProductDetailScreen.routeName);
+          Navigator.of(
+            context,
+          ).pushNamed(ProductDetailScreen.routeName, arguments: item.toRouteData());
         },
         child: Ink(
           padding: const EdgeInsets.all(14),

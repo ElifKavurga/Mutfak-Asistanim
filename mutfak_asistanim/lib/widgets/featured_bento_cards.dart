@@ -214,16 +214,9 @@ class _FeaturedInfoCard extends StatelessWidget {
   final FeaturedInfoCardData infoCard;
 
   void _openRecipeDetail(BuildContext context) {
-    Navigator.of(context).pushNamed(
-      RecipeDetailScreen.routeName,
-      arguments: const {
-        'title': 'Renkli Hasat Salatası',
-        'duration': '15 dk',
-        'tag': 'ZERO WASTE',
-        'gradientColors': [Color(0xFF7BA05B), Color(0xFF36543D)],
-        'icon': Icons.energy_savings_leaf_rounded,
-      },
-    );
+    Navigator.of(
+      context,
+    ).pushNamed(RecipeDetailScreen.routeName, arguments: const <String, dynamic>{});
   }
 
   @override

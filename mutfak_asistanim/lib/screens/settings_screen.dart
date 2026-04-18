@@ -15,24 +15,15 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  static const List<String> _dietOptions = [
-    'Hepçil',
-    'Vegan',
-    'Vejetaryen',
-    'Glutensiz',
-  ];
+  final List<String> _dietOptions = const ['Tümü'];
 
-  final TextEditingController _nameController = TextEditingController(
-    text: 'Alex Morgan',
-  );
-  final TextEditingController _emailController = TextEditingController(
-    text: 'alex.morgan@culinary.com',
-  );
+  final TextEditingController _nameController = TextEditingController(text: '');
+  final TextEditingController _emailController = TextEditingController(text: '');
 
-  String _selectedDiet = 'Vejetaryen';
-  bool _notificationsEnabled = true;
+  String _selectedDiet = 'Tümü';
+  bool _notificationsEnabled = false;
   bool _darkModeEnabled = false;
-  bool _sustainabilityTipsEnabled = true;
+  bool _sustainabilityTipsEnabled = false;
 
   @override
   void dispose() {
@@ -96,7 +87,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: ListView(
                   padding: const EdgeInsets.fromLTRB(24, 16, 24, 140),
                   children: [
-                    const _ProfileHeader(),
+                    _ProfileHeader(
+                      name: _nameController.text,
+                      role: '',
+                    ),
                     const SizedBox(height: 32),
                     Container(
                       padding: const EdgeInsets.all(24),
@@ -263,7 +257,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 }
 
 class _ProfileHeader extends StatelessWidget {
-  const _ProfileHeader();
+  const _ProfileHeader({
+    required this.name,
+    required this.role,
+  });
+
+  final String name;
+  final String role;
 
   @override
   Widget build(BuildContext context) {
@@ -332,7 +332,7 @@ class _ProfileHeader extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         Text(
-          'Alex Morgan',
+          name,
           style: textTheme.titleLarge?.copyWith(
             color: AppColors.textPrimary,
             fontWeight: FontWeight.w800,
@@ -340,7 +340,7 @@ class _ProfileHeader extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          'Chef de Cuisine',
+          role,
           style: textTheme.bodyMedium?.copyWith(
             color: AppColors.textSecondary,
           ),
@@ -416,7 +416,7 @@ class _PreferenceTile extends StatelessWidget {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: AppColors.onPrimary,
+            activeThumbColor: AppColors.onPrimary,
             activeTrackColor: AppColors.primary,
             inactiveThumbColor: AppColors.surface,
             inactiveTrackColor: AppColors.surfaceContainerHigh,
