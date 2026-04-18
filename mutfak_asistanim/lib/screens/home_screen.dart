@@ -8,6 +8,7 @@ import '../widgets/suggestion_card.dart';
 import 'add_product_screen.dart';
 import 'ai_camera_screen.dart';
 import 'inventory_screen.dart';
+import 'notifications_screen.dart';
 import 'stats_profile_screen.dart';
 import 'shopping_list_screen.dart';
 
@@ -109,6 +110,16 @@ class HomeScreen extends StatelessWidget {
         ),
         centerTitle: true,
         actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 2),
+            child: IconButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed(NotificationsScreen.routeName);
+              },
+              icon: const Icon(Icons.notifications_none_rounded),
+              tooltip: 'Bildirimler',
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 10),
             child: InkResponse(

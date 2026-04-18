@@ -2,10 +2,11 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import 'settings_screen.dart';
 import '../theme/app_colors.dart';
 import '../widgets/achievement_badge.dart';
 import '../widgets/stat_mini_card.dart';
+import 'notifications_screen.dart';
+import 'settings_screen.dart';
 
 class StatsProfileScreen extends StatelessWidget {
   const StatsProfileScreen({super.key});
@@ -85,6 +86,19 @@ class StatsProfileScreen extends StatelessWidget {
             fontWeight: FontWeight.w800,
           ),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: IconButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed(NotificationsScreen.routeName);
+              },
+              icon: const Icon(Icons.notifications_none_rounded),
+              color: AppColors.primary,
+              tooltip: 'Bildirimler',
+            ),
+          ),
+        ],
       ),
       body: SafeArea(
         top: false,
