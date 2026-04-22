@@ -27,6 +27,12 @@ public class Recipe extends BaseEntity {
 	@Column(name = "description")
 	private String description;
 	
+	@Column(name = "prep_time_minutes")
+	private Integer prepTimeMinutes;
+	
+	@Column(name = "recipe_image_url")
+	private String recipeImageUrl;
+	
 	//RecipeIngredient
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "recipe")
 	private List<RecipeIngredient> recipeIngredients=new ArrayList<>();

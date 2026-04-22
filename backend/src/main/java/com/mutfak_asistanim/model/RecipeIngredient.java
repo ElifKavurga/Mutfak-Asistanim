@@ -12,9 +12,17 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "recipe_ingredient")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class RecipeIngredient extends BaseEntity {
 	
 	@Column(name = "quantity")
