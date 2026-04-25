@@ -1,7 +1,11 @@
 package com.mutfak_asistanim.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,16 +23,19 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class User extends BaseEntity {
+public class User extends BaseEntity implements UserDetails {
 	
-	@Column(name = "first_ name")
+	@Column(name = "first_name")
 	private String firstName;
 	
 	@Column(name = "last_name")
 	private String lastName;
 	
+	@Column(name = "username")
+	private String username;
+	
 	@Column(name = "password")
-	private String pasword;
+	private String password;
 	
 	//inventory
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
@@ -41,5 +48,10 @@ public class User extends BaseEntity {
 	//refreshToken
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
 	private List<RefreshToken> refreshTokens = new ArrayList<>();
-	
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return List.of();
+	}
+
 }
