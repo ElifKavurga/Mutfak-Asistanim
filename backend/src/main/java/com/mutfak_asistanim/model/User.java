@@ -37,6 +37,9 @@ public class User extends BaseEntity implements UserDetails {
 	@Column(name = "password")
 	private String password;
 	
+	@Column(name = "email")
+	private String email;
+	
 	//inventory
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
 	private List<Inventory> inventories= new ArrayList<>();
