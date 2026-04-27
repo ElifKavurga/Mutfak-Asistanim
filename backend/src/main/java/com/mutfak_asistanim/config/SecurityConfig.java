@@ -10,6 +10,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.mutfak_asistanim.handler.AuthEntryPoint;
 import com.mutfak_asistanim.jwt.JWTAuthenticationFilter;
 
 @Configuration
@@ -26,9 +27,14 @@ public class SecurityConfig {
 	@Autowired
 	private JWTAuthenticationFilter jwtAuthenticationFilter;
 	
+	@Autowired
+	private AuthEntryPoint authEntryPoint;
+	
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.csrf(csrf -> csrf.disable())
+		.exceptionHandling(exception -> exception
+				.authenticationEntryPoint(authEntryPoint))
 		.authorizeHttpRequests(request -> 
 		request.requestMatchers(REGISTER, AUTHENTICATE, REFRESH_TOKEN).permitAll()
 		.anyRequest()

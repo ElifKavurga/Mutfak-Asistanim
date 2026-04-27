@@ -1,6 +1,7 @@
 package com.mutfak_asistanim.model;
 
-import java.sql.Date;
+
+import java.util.Date;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
