@@ -31,7 +31,7 @@ public class Product extends BaseEntity {
 	@Column(name = "barcode", nullable = true)
 	private String barcode;
 	
-	@Column(name = "product_image_url")
+	@Column(name = "product_image_url", nullable = true)
 	private String productImageUrl;
 	
 	@Column(name = "category_type")

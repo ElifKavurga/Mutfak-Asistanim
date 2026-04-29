@@ -30,6 +30,9 @@ public class Recipe extends BaseEntity {
 	@Column(name = "prep_time_minutes")
 	private Integer prepTimeMinutes;
 	
+	@Column(name = "calorie")
+	private Integer calorie;
+	
 	@Column(name = "recipe_image_url")
 	private String recipeImageUrl;
 	
