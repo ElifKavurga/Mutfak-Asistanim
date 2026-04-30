@@ -33,7 +33,7 @@ public class Recipe extends BaseEntity {
 	@Column(name = "calorie")
 	private Integer calorie;
 	
-	@Column(name = "recipe_image_url")
+	@Column(name = "recipe_image_url", nullable = true)
 	private String recipeImageUrl;
 	
 	//RecipeIngredient
