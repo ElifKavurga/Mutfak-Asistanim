@@ -39,7 +39,7 @@ public class InventoryServiceImpl implements IInventoryService {
 	@Autowired
 	private ProductRepository productRepository;
     
-	private User getCurrentUser() {
+	public User getCurrentUser() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String currentPrincipalName = authentication.getName();
 		
