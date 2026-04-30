@@ -31,7 +31,7 @@ public class Notification extends BaseEntity {
 	private LocalDate sendingDate;
 	
 	@Column(name = "is_read")
-	private Boolean isRead;
+	private Boolean isRead = false;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
