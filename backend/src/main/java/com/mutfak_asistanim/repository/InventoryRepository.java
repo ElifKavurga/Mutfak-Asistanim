@@ -17,4 +17,6 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
 	List<Inventory> findByUserIdAndExpirationDateBetween(Long userId, LocalDate startDate, LocalDate targetDate); 
 	
 	Optional<Inventory> findByIdAndUserId(Long id, Long userId);
+	
+	Long countByUserId(Long userId); 
 }
