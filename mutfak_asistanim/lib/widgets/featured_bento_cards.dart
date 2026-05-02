@@ -10,6 +10,7 @@ class FeaturedRecipeData {
     required this.duration,
     required this.sustainabilityLabel,
     required this.gradientColors,
+    this.routeArguments = const <String, dynamic>{},
   });
 
   final String badge;
@@ -17,6 +18,7 @@ class FeaturedRecipeData {
   final String duration;
   final String sustainabilityLabel;
   final List<Color> gradientColors;
+  final Map<String, dynamic> routeArguments;
 }
 
 class FeaturedInfoCardData {
@@ -24,11 +26,13 @@ class FeaturedInfoCardData {
     required this.title,
     required this.description,
     required this.actionLabel,
+    this.routeArguments = const <String, dynamic>{},
   });
 
   final String title;
   final String description;
   final String actionLabel;
+  final Map<String, dynamic> routeArguments;
 }
 
 class FeaturedBentoCards extends StatelessWidget {
@@ -81,13 +85,7 @@ class _FeaturedRecipeCard extends StatelessWidget {
   void _openRecipeDetail(BuildContext context) {
     Navigator.of(context).pushNamed(
       RecipeDetailScreen.routeName,
-      arguments: {
-        'title': recipe.title,
-        'duration': recipe.duration,
-        'tag': recipe.badge.toUpperCase(),
-        'gradientColors': recipe.gradientColors,
-        'icon': Icons.energy_savings_leaf_rounded,
-      },
+      arguments: recipe.routeArguments,
     );
   }
 
@@ -214,9 +212,10 @@ class _FeaturedInfoCard extends StatelessWidget {
   final FeaturedInfoCardData infoCard;
 
   void _openRecipeDetail(BuildContext context) {
-    Navigator.of(
-      context,
-    ).pushNamed(RecipeDetailScreen.routeName, arguments: const <String, dynamic>{});
+    Navigator.of(context).pushNamed(
+      RecipeDetailScreen.routeName,
+      arguments: infoCard.routeArguments,
+    );
   }
 
   @override

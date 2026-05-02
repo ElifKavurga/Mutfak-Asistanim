@@ -9,11 +9,15 @@ class SuggestionCard extends StatelessWidget {
     required this.title,
     required this.recipeName,
     required this.description,
+    this.buttonLabel = 'Tarife Git',
+    this.onPressed,
   });
 
   final String title;
   final String recipeName;
   final String description;
+  final String buttonLabel;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -90,8 +94,8 @@ class SuggestionCard extends StatelessWidget {
               SizedBox(
                 width: 170,
                 child: CommonButton(
-                  label: 'Tarife Git',
-                  onPressed: () {},
+                  label: buttonLabel,
+                  onPressed: onPressed,
                   variant: CommonButtonVariant.secondary,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 18,

@@ -1,0 +1,527 @@
+{
+  "inventory": [
+    {
+      "id": "strained-yogurt",
+      "name": "Suzme Yogurt",
+      "quantity": 2,
+      "unit": "kase",
+      "category": "Sut Urunleri",
+      "daysUntilExpiry": 1,
+      "iconKey": "yogurt",
+      "gradientKey": "coolMint"
+    },
+    {
+      "id": "spinach",
+      "name": "Ispanak",
+      "quantity": 1,
+      "unit": "paket",
+      "category": "Sebze",
+      "daysUntilExpiry": 1,
+      "iconKey": "spinach",
+      "gradientKey": "freshLeaf"
+    },
+    {
+      "id": "mushroom",
+      "name": "Mantar",
+      "quantity": 400,
+      "unit": "gr",
+      "category": "Sebze",
+      "daysUntilExpiry": 2,
+      "iconKey": "mushroom",
+      "gradientKey": "earthMushroom"
+    },
+    {
+      "id": "tortilla",
+      "name": "Tortilla",
+      "quantity": 4,
+      "unit": "adet",
+      "category": "Kuru Gida",
+      "daysUntilExpiry": 3,
+      "iconKey": "tortilla",
+      "gradientKey": "warmBread"
+    },
+    {
+      "id": "tomato",
+      "name": "Domates",
+      "quantity": 5,
+      "unit": "adet",
+      "category": "Sebze",
+      "daysUntilExpiry": 2,
+      "iconKey": "tomato",
+      "gradientKey": "tomatoGlow"
+    },
+    {
+      "id": "egg",
+      "name": "Yumurta",
+      "quantity": 8,
+      "unit": "adet",
+      "category": "Kahvaltilik",
+      "daysUntilExpiry": 4,
+      "iconKey": "egg",
+      "gradientKey": "eggSun"
+    },
+    {
+      "id": "milk",
+      "name": "Sut",
+      "quantity": 1000,
+      "unit": "ml",
+      "category": "Sut Urunleri",
+      "daysUntilExpiry": 5,
+      "iconKey": "milk",
+      "gradientKey": "milkBlue"
+    },
+    {
+      "id": "rice",
+      "name": "Pirinç",
+      "quantity": 750,
+      "unit": "gr",
+      "category": "Kuru Gida",
+      "daysUntilExpiry": 18,
+      "iconKey": "rice",
+      "gradientKey": "riceCream"
+    },
+    {
+      "id": "pasta",
+      "name": "Makarna",
+      "quantity": 500,
+      "unit": "gr",
+      "category": "Kuru Gida",
+      "daysUntilExpiry": 24,
+      "iconKey": "pasta",
+      "gradientKey": "pastaGold"
+    }
+  ],
+  "frequentIngredients": [
+    {
+      "name": "Sogan",
+      "desiredQuantity": 4,
+      "unit": "adet",
+      "category": "Sebze",
+      "iconKey": "onion"
+    },
+    {
+      "name": "Sarimsak",
+      "desiredQuantity": 1,
+      "unit": "bas",
+      "category": "Baharat Sos",
+      "iconKey": "garlic"
+    },
+    {
+      "name": "Zeytinyagi",
+      "desiredQuantity": 500,
+      "unit": "ml",
+      "category": "Baharat Sos",
+      "iconKey": "oil"
+    },
+    {
+      "name": "Limon",
+      "desiredQuantity": 2,
+      "unit": "adet",
+      "category": "Meyve Sebze",
+      "iconKey": "lemon"
+    }
+  ],
+  "missingIngredients": {
+    "title": "Eksik Malzemeler",
+    "items": [
+      {
+        "name": "Sogan",
+        "quantity": 4,
+        "unit": "adet",
+        "category": "Sebze",
+        "reason": "Menemen ve soteler icin sik kullaniliyor",
+        "iconKey": "onion"
+      },
+      {
+        "name": "Sarimsak",
+        "quantity": 1,
+        "unit": "bas",
+        "category": "Baharat Sos",
+        "reason": "Makarna soslari icin gerekli",
+        "iconKey": "garlic"
+      },
+      {
+        "name": "Zeytinyagi",
+        "quantity": 500,
+        "unit": "ml",
+        "category": "Baharat Sos",
+        "reason": "Temel pisirme malzemesi bitti",
+        "iconKey": "oil"
+      }
+    ]
+  },
+  "featuredInfo": {
+    "title": "Bugun degerlendirmeye basla",
+    "description": "Son kullanimi yakin urunleri once tariflere yerlestirerek atigi azalt.",
+    "actionLabel": "Tarifi Ac"
+  },
+  "seasonalHighlight": {
+    "eyebrow": "HAFTANIN PLANI",
+    "title": "Yakinda bitecek malzemeler once mutfaga girsin",
+    "description": "Ispanak, mantar ve suzme yogurdu ilk iki gun icinde kullanirsan hem tarifleri doldurur hem de buzdolabindaki yogunlugu azaltirsin.",
+    "actionLabel": "Oncelikli Tarifleri Gor"
+  },
+  "recipes": [
+    {
+      "id": "ispanakli-mantar-omleti",
+      "title": "Ispanakli Mantar Omleti",
+      "tag": "Kahvalti",
+      "duration": "15 dk",
+      "servings": "2 porsiyon",
+      "calories": "340 kcal",
+      "chefNote": "Ispanak ve mantari once soteyip yumurtayi sonra eklersen tavanin suyu tarifin dokusunu bozmaz.",
+      "sustainabilityLabel": "1 gunde bitecekleri kullan",
+      "iconKey": "omelet",
+      "gradientKey": "omeletGreen",
+      "ingredients": [
+        {
+          "name": "Ispanak",
+          "quantity": 1,
+          "unit": "paket",
+          "category": "Sebze",
+          "isFrequent": false
+        },
+        {
+          "name": "Mantar",
+          "quantity": 200,
+          "unit": "gr",
+          "category": "Sebze",
+          "isFrequent": false
+        },
+        {
+          "name": "Yumurta",
+          "quantity": 4,
+          "unit": "adet",
+          "category": "Kahvaltilik",
+          "isFrequent": false
+        },
+        {
+          "name": "Suzme Yogurt",
+          "quantity": 1,
+          "unit": "kase",
+          "category": "Sut Urunleri",
+          "isFrequent": false
+        },
+        {
+          "name": "Sogan",
+          "quantity": 1,
+          "unit": "adet",
+          "category": "Sebze",
+          "isFrequent": true
+        }
+      ],
+      "steps": [
+        {
+          "title": "Sebzeleri hazirla",
+          "description": "Ispanagi iri iri dogra, mantari ince dilimle. Tavadaki ilk adimda bunlari orta ateste yumusat.",
+          "showPlaceholder": false
+        },
+        {
+          "title": "Yumurtayi ekle",
+          "description": "Yumurtalari cirp ve mantar ispanak karisiminin ustune gezdir. Kenarlari toparlanana kadar pisir.",
+          "showPlaceholder": true
+        },
+        {
+          "title": "Yogurtla servis et",
+          "description": "Omleti tabaga al, ustune bir kasik suzme yogurt ekle ve sicakken servis et.",
+          "showPlaceholder": false
+        }
+      ]
+    },
+    {
+      "id": "yogurtlu-sebze-durum",
+      "title": "Yogurtlu Sebze Durum",
+      "tag": "Hizli",
+      "duration": "20 dk",
+      "servings": "2 porsiyon",
+      "calories": "410 kcal",
+      "chefNote": "Durumu toplamadan once sebzelerin suyunu kagit havluyla alirsan tortilla yumusamaz.",
+      "sustainabilityLabel": "Yogurt ve tortilla dengesi",
+      "iconKey": "wrap",
+      "gradientKey": "wrapFresh",
+      "ingredients": [
+        {
+          "name": "Tortilla",
+          "quantity": 2,
+          "unit": "adet",
+          "category": "Kuru Gida",
+          "isFrequent": false
+        },
+        {
+          "name": "Suzme Yogurt",
+          "quantity": 1,
+          "unit": "kase",
+          "category": "Sut Urunleri",
+          "isFrequent": false
+        },
+        {
+          "name": "Domates",
+          "quantity": 2,
+          "unit": "adet",
+          "category": "Sebze",
+          "isFrequent": false
+        },
+        {
+          "name": "Ispanak",
+          "quantity": 1,
+          "unit": "paket",
+          "category": "Sebze",
+          "isFrequent": false
+        },
+        {
+          "name": "Limon",
+          "quantity": 1,
+          "unit": "adet",
+          "category": "Meyve Sebze",
+          "isFrequent": true
+        }
+      ],
+      "steps": [
+        {
+          "title": "Sosu karistir",
+          "description": "Suzme yogurdu limonla ac ve hafif eksili bir sos hazirla.",
+          "showPlaceholder": false
+        },
+        {
+          "title": "Ic dolguyu yerlestir",
+          "description": "Ispanak ve domatesi tortilla ortasina diz, ustune yogurt sosu ekle.",
+          "showPlaceholder": true
+        },
+        {
+          "title": "Sar ve isit",
+          "description": "Durumu kapatip kuru tavada kisa sure cevirerek disini hafif kizart.",
+          "showPlaceholder": false
+        }
+      ]
+    },
+    {
+      "id": "domatesli-menemen",
+      "title": "Domatesli Menemen",
+      "tag": "Kahvalti",
+      "duration": "18 dk",
+      "servings": "2 porsiyon",
+      "calories": "360 kcal",
+      "chefNote": "Domates suyunu cekmeden yumurta ekleme; boylece menemen sulu degil kremamsi kalir.",
+      "sustainabilityLabel": "Domatesleri toparlar",
+      "iconKey": "skillet",
+      "gradientKey": "menemenWarm",
+      "ingredients": [
+        {
+          "name": "Domates",
+          "quantity": 3,
+          "unit": "adet",
+          "category": "Sebze",
+          "isFrequent": false
+        },
+        {
+          "name": "Yumurta",
+          "quantity": 4,
+          "unit": "adet",
+          "category": "Kahvaltilik",
+          "isFrequent": false
+        },
+        {
+          "name": "Sogan",
+          "quantity": 1,
+          "unit": "adet",
+          "category": "Sebze",
+          "isFrequent": true
+        },
+        {
+          "name": "Zeytinyagi",
+          "quantity": 30,
+          "unit": "ml",
+          "category": "Baharat Sos",
+          "isFrequent": true
+        }
+      ],
+      "steps": [
+        {
+          "title": "Tabani kur",
+          "description": "Soganla zeytinyagini tavaya al, sogan hafif saydamlasana kadar cevir.",
+          "showPlaceholder": false
+        },
+        {
+          "title": "Domatesleri pisir",
+          "description": "Dogranmis domatesleri ekle ve suyunun buyuk kismini cekene kadar orta ateste tut.",
+          "showPlaceholder": true
+        },
+        {
+          "title": "Yumurtayi birlestir",
+          "description": "Yumurtalari ustune kir, karistir ve istedigin kivama gelince ocaktan al.",
+          "showPlaceholder": false
+        }
+      ]
+    },
+    {
+      "id": "mantarli-makarna",
+      "title": "Mantarli Hafif Makarna",
+      "tag": "Aksam",
+      "duration": "25 dk",
+      "servings": "3 porsiyon",
+      "calories": "520 kcal",
+      "chefNote": "Mantarlar renk almadan sutu ekleme; aksi halde sos fazla su salar.",
+      "sustainabilityLabel": "Mantarlar once bitsin",
+      "iconKey": "pastaPlate",
+      "gradientKey": "pastaBrown",
+      "ingredients": [
+        {
+          "name": "Makarna",
+          "quantity": 250,
+          "unit": "gr",
+          "category": "Kuru Gida",
+          "isFrequent": false
+        },
+        {
+          "name": "Mantar",
+          "quantity": 200,
+          "unit": "gr",
+          "category": "Sebze",
+          "isFrequent": false
+        },
+        {
+          "name": "Sut",
+          "quantity": 250,
+          "unit": "ml",
+          "category": "Sut Urunleri",
+          "isFrequent": false
+        },
+        {
+          "name": "Sarimsak",
+          "quantity": 1,
+          "unit": "bas",
+          "category": "Baharat Sos",
+          "isFrequent": true
+        },
+        {
+          "name": "Zeytinyagi",
+          "quantity": 20,
+          "unit": "ml",
+          "category": "Baharat Sos",
+          "isFrequent": true
+        }
+      ],
+      "steps": [
+        {
+          "title": "Makarnayi hasla",
+          "description": "Makarnayi tuzlu suda al dente olacak sekilde hasla.",
+          "showPlaceholder": false
+        },
+        {
+          "title": "Mantari sotele",
+          "description": "Mantar ve sarimsagi zeytinyaginda yuksek ateste renk alana kadar cevir.",
+          "showPlaceholder": true
+        },
+        {
+          "title": "Sosu bagla",
+          "description": "Sutu ekle, kisik ateste bir iki dakika toparla ve makarnayla birlestir.",
+          "showPlaceholder": false
+        }
+      ]
+    },
+    {
+      "id": "firinsiz-sutlac",
+      "title": "Firinsiz Sutlac",
+      "tag": "Tatli",
+      "duration": "35 dk",
+      "servings": "4 porsiyon",
+      "calories": "290 kcal",
+      "chefNote": "Pirinci once az suyla actiktan sonra sutu eklersen daha pürüzsüz bir kivam elde edersin.",
+      "sustainabilityLabel": "Sutun son bolumu icin ideal",
+      "iconKey": "dessert",
+      "gradientKey": "dessertCream",
+      "ingredients": [
+        {
+          "name": "Sut",
+          "quantity": 750,
+          "unit": "ml",
+          "category": "Sut Urunleri",
+          "isFrequent": false
+        },
+        {
+          "name": "Pirinç",
+          "quantity": 120,
+          "unit": "gr",
+          "category": "Kuru Gida",
+          "isFrequent": false
+        }
+      ],
+      "steps": [
+        {
+          "title": "Pirinci hazirla",
+          "description": "Pirinci yikayip az suyla hafif yumusayana kadar pisir.",
+          "showPlaceholder": false
+        },
+        {
+          "title": "Sutu ekle",
+          "description": "Sutu azar azar ekleyip karistir, karisim koyulasana kadar pisirmeye devam et.",
+          "showPlaceholder": true
+        },
+        {
+          "title": "Dinlendir",
+          "description": "Kaselere bolustur ve servis etmeden once sogumaya birak.",
+          "showPlaceholder": false
+        }
+      ]
+    },
+    {
+      "id": "domatesli-pilav",
+      "title": "Domatesli Pirinc Pilavi",
+      "tag": "Aksam",
+      "duration": "30 dk",
+      "servings": "3 porsiyon",
+      "calories": "430 kcal",
+      "chefNote": "Domatesi pirince erken eklersen tane kaybi olur; once pirinci cevirip sonra domatesi ver.",
+      "sustainabilityLabel": "Domatesleri ikinci turda kullan",
+      "iconKey": "ricePlate",
+      "gradientKey": "pilafGold",
+      "ingredients": [
+        {
+          "name": "Pirinç",
+          "quantity": 250,
+          "unit": "gr",
+          "category": "Kuru Gida",
+          "isFrequent": false
+        },
+        {
+          "name": "Domates",
+          "quantity": 2,
+          "unit": "adet",
+          "category": "Sebze",
+          "isFrequent": false
+        },
+        {
+          "name": "Sogan",
+          "quantity": 1,
+          "unit": "adet",
+          "category": "Sebze",
+          "isFrequent": true
+        },
+        {
+          "name": "Zeytinyagi",
+          "quantity": 20,
+          "unit": "ml",
+          "category": "Baharat Sos",
+          "isFrequent": true
+        }
+      ],
+      "steps": [
+        {
+          "title": "Pirinci kavur",
+          "description": "Pirinci yagla birlikte parlaklasana kadar kavur.",
+          "showPlaceholder": false
+        },
+        {
+          "title": "Domatesi ekle",
+          "description": "Kucuk dogranmis domatesi ekleyip kisik ateste karisima yedir.",
+          "showPlaceholder": true
+        },
+        {
+          "title": "Demlendir",
+          "description": "Suyunu ver, kapagini kapat ve pilavi dinlendirerek servis et.",
+          "showPlaceholder": false
+        }
+      ]
+    }
+  ]
+}

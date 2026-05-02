@@ -10,6 +10,8 @@ class RecipeCardData {
     required this.tag,
     required this.gradientColors,
     required this.icon,
+    this.routeArguments = const <String, dynamic>{},
+    this.searchKeywords = const <String>[],
   });
 
   final String title;
@@ -17,6 +19,8 @@ class RecipeCardData {
   final String tag;
   final List<Color> gradientColors;
   final IconData icon;
+  final Map<String, dynamic> routeArguments;
+  final List<String> searchKeywords;
 }
 
 class RecipeGridCard extends StatelessWidget {
@@ -35,13 +39,7 @@ class RecipeGridCard extends StatelessWidget {
         onTap: () {
           Navigator.of(context).pushNamed(
             RecipeDetailScreen.routeName,
-            arguments: {
-              'title': recipe.title,
-              'duration': recipe.duration,
-              'tag': recipe.tag,
-              'gradientColors': recipe.gradientColors,
-              'icon': recipe.icon,
-            },
+            arguments: recipe.routeArguments,
           );
         },
         child: Column(
