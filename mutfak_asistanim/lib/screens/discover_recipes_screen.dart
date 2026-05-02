@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../services/mock_kitchen_data_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/dashboard_bottom_nav.dart';
 import '../widgets/featured_bento_cards.dart';
@@ -16,59 +17,93 @@ class DiscoverRecipesScreen extends StatefulWidget {
 }
 
 class _DiscoverRecipesScreenState extends State<DiscoverRecipesScreen> {
-  final FeaturedRecipeData _featuredRecipe = const FeaturedRecipeData(
-    badge: '',
-    title: '',
-    duration: '',
-    sustainabilityLabel: '',
-    gradientColors: [Color(0xFF7BA05B), Color(0xFF36543D)],
-  );
-
-  final FeaturedInfoCardData _featuredInfo = const FeaturedInfoCardData(
-    title: '',
-    description: '',
-    actionLabel: '',
-  );
-
-  final List<RecipeCardData> _recipes = [];
-
-  final _SeasonalHighlightData _seasonalHighlight =
-      const _SeasonalHighlightData(
-        eyebrow: '',
-        title: '',
-        description: '',
-        actionLabel: '',
-      );
-
   final TextEditingController _searchController = TextEditingController();
-  late final Future<List<String>> _categoriesFuture;
+
+  KitchenRecipeDiscoveryData? _data;
+  String? _loadError;
   String? _selectedFilter;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _categoriesFuture = _fetchCategories();
-    _categoriesFuture.then((categories) {
-      if (!mounted || categories.isEmpty || _selectedFilter != null) {
-        return;
-      }
-
-      setState(() {
-        _selectedFilter = categories.first;
-      });
-    });
+    _searchController.addListener(_handleSearchChange);
+    _loadData();
   }
 
   @override
   void dispose() {
-    _searchController.dispose();
+    _searchController
+      ..removeListener(_handleSearchChange)
+      ..dispose();
     super.dispose();
   }
 
-  Future<List<String>> _fetchCategories() async {
-    await Future.delayed(const Duration(milliseconds: 900));
+  Future<void> _loadData() async {
+    setState(() {
+      _isLoading = true;
+      _loadError = null;
+    });
 
-    return const ['Tümü'];
+    try {
+      final data = await MockKitchenDataService.instance.loadRecipeDiscoveryData();
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _data = data;
+        _selectedFilter = data.categories.isNotEmpty
+            ? (_selectedFilter ?? data.categories.first)
+            : null;
+        _isLoading = false;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _loadError = error.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _handleSearchChange() {
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {});
+  }
+
+  List<RecipeCardData> get _visibleRecipes {
+    final data = _data;
+    if (data == null) {
+      return const <RecipeCardData>[];
+    }
+
+    final selectedFilter = _selectedFilter ?? 'Tümü';
+    final query = _searchController.text.trim().toLowerCase();
+
+    return data.recipes.where((recipe) {
+      final matchesFilter = selectedFilter == 'Tümü' || recipe.tag == selectedFilter;
+      if (!matchesFilter) {
+        return false;
+      }
+
+      if (query.isEmpty) {
+        return true;
+      }
+
+      final haystack = <String>[
+        recipe.title,
+        recipe.tag,
+        ...recipe.searchKeywords,
+      ].join(' ').toLowerCase();
+      return haystack.contains(query);
+    }).toList(growable: false);
   }
 
   @override
@@ -103,74 +138,15 @@ class _DiscoverRecipesScreenState extends State<DiscoverRecipesScreen> {
       ),
       body: SafeArea(
         top: false,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 118),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1240),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _SearchAndFilters(
-                    controller: _searchController,
-                    categoriesFuture: _categoriesFuture,
-                    selectedFilter: _selectedFilter,
-                    onFilterSelected: (filter) {
-                      setState(() {
-                        _selectedFilter = filter;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 36),
-                  Text(
-                    'Günün İlhamı',
-                    style: textTheme.headlineMedium?.copyWith(
-                      color: AppColors.primary,
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  FeaturedBentoCards(
-                    featuredRecipe: _featuredRecipe,
-                    infoCard: _featuredInfo,
-                  ),
-                  const SizedBox(height: 40),
-                  _DiscoveryHeader(textTheme: textTheme),
-                  const SizedBox(height: 22),
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      final width = constraints.maxWidth;
-                      const crossAxisSpacing = 18.0;
-                      const mainAxisSpacing = 22.0;
-                      final crossAxisCount = width >= 1100
-                          ? 4
-                          : width >= 700
-                          ? 2
-                          : 1;
-                      final cardWidth =
-                          (width - ((crossAxisCount - 1) * crossAxisSpacing)) /
-                          crossAxisCount;
-                      final imageHeight = cardWidth * 1.25;
-                      final mainAxisExtent = imageHeight + 92;
-
-                      return GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _recipes.length,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: crossAxisCount,
-                          crossAxisSpacing: crossAxisSpacing,
-                          mainAxisSpacing: mainAxisSpacing,
-                          mainAxisExtent: mainAxisExtent,
-                        ),
-                        itemBuilder: (context, index) {
-                          return RecipeGridCard(recipe: _recipes[index]);
-                        },
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 40),
-                  _SeasonalHighlightSection(data: _seasonalHighlight),
-                ],
+        child: RefreshIndicator(
+          onRefresh: _loadData,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 118),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1240),
+                child: _buildBody(textTheme),
               ),
             ),
           ),
@@ -181,19 +157,118 @@ class _DiscoverRecipesScreenState extends State<DiscoverRecipesScreen> {
       ),
     );
   }
+
+  Widget _buildBody(TextTheme textTheme) {
+    if (_isLoading) {
+      return const Padding(
+        padding: EdgeInsets.only(top: 120),
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (_loadError != null) {
+      return _RecipesErrorState(
+        message: _loadError!,
+        onRetry: _loadData,
+      );
+    }
+
+    final data = _data;
+    if (data == null) {
+      return _RecipesErrorState(
+        message: 'Tarif verisi yüklenemedi.',
+        onRetry: _loadData,
+      );
+    }
+
+    final recipes = _visibleRecipes;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SearchAndFilters(
+          controller: _searchController,
+          categories: data.categories,
+          selectedFilter: _selectedFilter ?? data.categories.first,
+          onFilterSelected: (filter) {
+            setState(() {
+              _selectedFilter = filter;
+            });
+          },
+        ),
+        const SizedBox(height: 36),
+        Text(
+          'Günün İlhamı',
+          style: textTheme.headlineMedium?.copyWith(
+            color: AppColors.primary,
+          ),
+        ),
+        const SizedBox(height: 18),
+        FeaturedBentoCards(
+          featuredRecipe: data.featuredRecipe,
+          infoCard: data.infoCard,
+        ),
+        const SizedBox(height: 40),
+        _DiscoveryHeader(
+          textTheme: textTheme,
+          totalRecipeCount: recipes.length,
+        ),
+        const SizedBox(height: 22),
+        if (recipes.isEmpty)
+          const _RecipesEmptyState()
+        else
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final width = constraints.maxWidth;
+              const crossAxisSpacing = 18.0;
+              const mainAxisSpacing = 22.0;
+              final crossAxisCount = width >= 1100
+                  ? 4
+                  : width >= 700
+                      ? 2
+                      : 1;
+              final cardWidth =
+                  (width - ((crossAxisCount - 1) * crossAxisSpacing)) /
+                      crossAxisCount;
+              final imageHeight = cardWidth * 1.25;
+              final mainAxisExtent = imageHeight + 92;
+
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: recipes.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+                  crossAxisSpacing: crossAxisSpacing,
+                  mainAxisSpacing: mainAxisSpacing,
+                  mainAxisExtent: mainAxisExtent,
+                ),
+                itemBuilder: (context, index) {
+                  return RecipeGridCard(recipe: recipes[index]);
+                },
+              );
+            },
+          ),
+        const SizedBox(height: 40),
+        _SeasonalHighlightSection(data: data.seasonalHighlight),
+      ],
+    );
+  }
 }
 
 class _SearchAndFilters extends StatelessWidget {
   const _SearchAndFilters({
     required this.controller,
-    required this.categoriesFuture,
+    required this.categories,
     required this.selectedFilter,
     required this.onFilterSelected,
   });
 
   final TextEditingController controller;
-  final Future<List<String>> categoriesFuture;
-  final String? selectedFilter;
+  final List<String> categories;
+  final String selectedFilter;
   final ValueChanged<String> onFilterSelected;
 
   @override
@@ -204,51 +279,25 @@ class _SearchAndFilters extends StatelessWidget {
         TextField(
           controller: controller,
           decoration: const InputDecoration(
-            hintText: 'Ara',
+            hintText: 'Malzeme veya tarif ara',
             prefixIcon: Icon(Icons.search_rounded),
           ),
         ),
         const SizedBox(height: 18),
-        FutureBuilder<List<String>>(
-          future: categoriesFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState != ConnectionState.done) {
-              return const SizedBox(
-                height: 42,
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: CircularProgressIndicator(strokeWidth: 2.2),
-                  ),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: categories.map((filter) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: RecipeFilterChip(
+                  label: filter,
+                  selected: filter == selectedFilter,
+                  onTap: () => onFilterSelected(filter),
                 ),
               );
-            }
-
-            final categories = snapshot.data ?? const <String>[];
-            if (categories.isEmpty) {
-              return const SizedBox.shrink();
-            }
-
-            return SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: categories.map((filter) {
-                  final selected = filter == selectedFilter;
-
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: RecipeFilterChip(
-                      label: filter,
-                      selected: selected,
-                      onTap: () => onFilterSelected(filter),
-                    ),
-                  );
-                }).toList(),
-              ),
-            );
-          },
+            }).toList(growable: false),
+          ),
         ),
       ],
     );
@@ -256,9 +305,13 @@ class _SearchAndFilters extends StatelessWidget {
 }
 
 class _DiscoveryHeader extends StatelessWidget {
-  const _DiscoveryHeader({required this.textTheme});
+  const _DiscoveryHeader({
+    required this.textTheme,
+    required this.totalRecipeCount,
+  });
 
   final TextTheme textTheme;
+  final int totalRecipeCount;
 
   @override
   Widget build(BuildContext context) {
@@ -279,7 +332,7 @@ class _DiscoveryHeader extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              'Sürdürülebilir mutfak için taze fikirler',
+              '$totalRecipeCount tarif, eldeki malzemelere göre sıralandı',
               style: textTheme.bodyLarge,
             ),
           ],
@@ -287,7 +340,7 @@ class _DiscoveryHeader extends StatelessWidget {
         TextButton(
           onPressed: () {},
           child: Text(
-            'Hepsini Gör',
+            'Öncelikli Kullan',
             style: textTheme.labelLarge?.copyWith(color: AppColors.primary),
           ),
         ),
@@ -299,7 +352,7 @@ class _DiscoveryHeader extends StatelessWidget {
 class _SeasonalHighlightSection extends StatelessWidget {
   const _SeasonalHighlightSection({required this.data});
 
-  final _SeasonalHighlightData data;
+  final KitchenSeasonalHighlightData data;
 
   @override
   Widget build(BuildContext context) {
@@ -443,7 +496,7 @@ class _SeasonalVisual extends StatelessWidget {
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: const Text(
-                  '',
+                  'PLAN',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 11,
@@ -467,16 +520,103 @@ class _SeasonalVisual extends StatelessWidget {
   }
 }
 
-class _SeasonalHighlightData {
-  const _SeasonalHighlightData({
-    required this.eyebrow,
-    required this.title,
-    required this.description,
-    required this.actionLabel,
+class _RecipesEmptyState extends StatelessWidget {
+  const _RecipesEmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(28),
+      ),
+      child: Column(
+        children: [
+          const Icon(
+            Icons.search_off_rounded,
+            color: AppColors.primary,
+            size: 44,
+          ),
+          const SizedBox(height: 14),
+          Text(
+            'Aramana uygun tarif bulunamadı',
+            style: textTheme.titleLarge?.copyWith(
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Farklı bir malzeme adı veya kategori deneyebilirsin.',
+            textAlign: TextAlign.center,
+            style: textTheme.bodyMedium?.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RecipesErrorState extends StatelessWidget {
+  const _RecipesErrorState({
+    required this.message,
+    required this.onRetry,
   });
 
-  final String eyebrow;
-  final String title;
-  final String description;
-  final String actionLabel;
+  final String message;
+  final Future<void> Function() onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 120),
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 520),
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(28),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.error_outline_rounded,
+                color: Color(0xFFB94C3A),
+                size: 42,
+              ),
+              const SizedBox(height: 14),
+              Text(
+                'Tarifler yüklenemedi',
+                style: textTheme.titleLarge?.copyWith(
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 18),
+              FilledButton(
+                onPressed: onRetry,
+                child: const Text('Tekrar Dene'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

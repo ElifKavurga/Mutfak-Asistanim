@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'shopping_list_screen.dart';
 import '../theme/app_colors.dart';
 
 class RecipeDetailScreen extends StatefulWidget {
@@ -14,6 +15,7 @@ class RecipeDetailScreen extends StatefulWidget {
 class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   late final Map<String, dynamic> _recipe;
   late final List<String> _ingredients;
+  late final Set<String> _missingIngredients;
   late final List<bool> _checked;
   late final List<_RecipeStepData> _steps;
   late final String _servings;
@@ -48,10 +50,15 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     _servings = map['servings'] as String? ?? '';
     _calories = map['calories'] as String? ?? '0 kcal';
     _chefNote = map['chefNote'] as String? ?? '';
-    _ingredients = (map['ingredients'] as List?)
-            ?.whereType<String>()
-            .toList(growable: false) ??
+    _ingredients =
+        (map['ingredients'] as List?)?.whereType<String>().toList(
+          growable: false,
+        ) ??
         <String>[];
+    _missingIngredients =
+        ((map['missingIngredients'] as List?) ?? const <dynamic>[])
+            .whereType<String>()
+            .toSet();
     _steps = _parseSteps(map['steps']);
     _checked = List<bool>.filled(_ingredients.length, false);
     _loaded = true;
@@ -80,8 +87,9 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final gradientColors =
-        (_recipe['gradientColors'] as List).whereType<Color>().toList();
+    final gradientColors = (_recipe['gradientColors'] as List)
+        .whereType<Color>()
+        .toList();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -310,6 +318,9 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               ),
               const SizedBox(height: 16),
               ...List.generate(_ingredients.length, (index) {
+                final ingredient = _ingredients[index];
+                final isMissing = _missingIngredients.contains(ingredient);
+
                 return CheckboxListTile(
                   value: _checked[index],
                   contentPadding: EdgeInsets.zero,
@@ -321,7 +332,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                     });
                   },
                   title: Text(
-                    _ingredients[index],
+                    ingredient,
                     style: textTheme.bodyLarge?.copyWith(
                       color: _checked[index]
                           ? AppColors.outline
@@ -331,13 +342,28 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                           : TextDecoration.none,
                     ),
                   ),
+                  subtitle: isMissing
+                      ? Text(
+                          'Eksik malzeme',
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: const Color(0xFFB94C3A),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        )
+                      : null,
                 );
               }),
               const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
-                  onPressed: () {},
+                  onPressed: _missingIngredients.isEmpty
+                      ? null
+                      : () {
+                          Navigator.of(
+                            context,
+                          ).pushNamed(ShoppingListScreen.routeName);
+                        },
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.primaryContainer,
                     foregroundColor: AppColors.primaryDim,
@@ -345,7 +371,9 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                   ),
                   icon: const Icon(Icons.shopping_basket_rounded),
                   label: Text(
-                    'Eksikleri Listeye Ekle',
+                    _missingIngredients.isEmpty
+                        ? 'Tüm Malzemeler Hazır'
+                        : 'Eksikleri Listede Gör',
                     style: textTheme.labelLarge?.copyWith(
                       color: AppColors.primaryDim,
                     ),
@@ -380,7 +408,9 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
             children: [
               Text(
                 'Şefin Notu',
-                style: textTheme.titleMedium?.copyWith(color: AppColors.primary),
+                style: textTheme.titleMedium?.copyWith(
+                  color: AppColors.primary,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
@@ -401,7 +431,9 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         const SizedBox(height: 18),
         ...List.generate(_steps.length, (index) {
           return Padding(
-            padding: EdgeInsets.only(bottom: index == _steps.length - 1 ? 0 : 22),
+            padding: EdgeInsets.only(
+              bottom: index == _steps.length - 1 ? 0 : 22,
+            ),
             child: _StepCard(
               stepNumber: index + 1,
               title: _steps[index].title,
@@ -535,9 +567,9 @@ class _HeroChip extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-          color: foregroundColor,
-        ),
+        style: Theme.of(
+          context,
+        ).textTheme.labelMedium?.copyWith(color: foregroundColor),
       ),
     );
   }
