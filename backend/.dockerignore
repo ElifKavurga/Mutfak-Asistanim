@@ -1,0 +1,7 @@
+.git
+.gitignore
+.localdb
+.mvn
+target
+*.log
+src/test

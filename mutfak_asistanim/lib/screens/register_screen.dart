@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../services/backend_api_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/brand_mark.dart';
 import '../widgets/common_button.dart';
 import '../widgets/common_text_field.dart';
 import '../widgets/decorative_background.dart';
+import 'home_screen.dart';
 import 'info_pages.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -15,11 +17,91 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _repeatPasswordController =
+      TextEditingController();
+
   bool _obscurePassword = true;
   bool _obscureRepeatPassword = true;
+  bool _isSubmitting = false;
+  String? _errorMessage;
+
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _usernameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _repeatPasswordController.dispose();
+    super.dispose();
+  }
 
   void _openScreen(Widget screen) {
     Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => screen));
+  }
+
+  Future<void> _submitRegister() async {
+    final firstName = _firstNameController.text.trim();
+    final lastName = _lastNameController.text.trim();
+    final username = _usernameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    final repeatPassword = _repeatPasswordController.text;
+
+    if (firstName.isEmpty ||
+        lastName.isEmpty ||
+        username.isEmpty ||
+        email.isEmpty ||
+        password.isEmpty) {
+      setState(() {
+        _errorMessage = 'Devam etmek için tüm alanları doldur.';
+      });
+      return;
+    }
+
+    if (password != repeatPassword) {
+      setState(() {
+        _errorMessage = 'Girdiğin şifreler birbiriyle eşleşmiyor.';
+      });
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+      _errorMessage = null;
+    });
+
+    try {
+      await BackendApiService.instance.registerAndAuthenticate(
+        firstName: firstName,
+        lastName: lastName,
+        username: username,
+        email: email,
+        password: password,
+      );
+      if (!mounted) {
+        return;
+      }
+
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
+        (route) => false,
+      );
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _errorMessage = error.toString();
+        _isSubmitting = false;
+      });
+    }
   }
 
   @override
@@ -42,12 +124,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 1160),
                     child: Column(
-                      children: [
+                      children: <Widget>[
                         Flex(
                           direction: isWide ? Axis.horizontal : Axis.vertical,
                           crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            if (isWide) ...[
+                          children: <Widget>[
+                            if (isWide) ...<Widget>[
                               const Expanded(
                                 child: Padding(
                                   padding: EdgeInsets.only(right: 48),
@@ -59,8 +141,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               constraints: const BoxConstraints(maxWidth: 430),
                               child: _RegisterForm(
                                 textTheme: textTheme,
+                                firstNameController: _firstNameController,
+                                lastNameController: _lastNameController,
+                                usernameController: _usernameController,
+                                emailController: _emailController,
+                                passwordController: _passwordController,
+                                repeatPasswordController:
+                                    _repeatPasswordController,
                                 obscurePassword: _obscurePassword,
                                 obscureRepeatPassword: _obscureRepeatPassword,
+                                isSubmitting: _isSubmitting,
+                                errorMessage: _errorMessage,
                                 onTogglePassword: () {
                                   setState(() {
                                     _obscurePassword = !_obscurePassword;
@@ -72,6 +163,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         !_obscureRepeatPassword;
                                   });
                                 },
+                                onSubmit: _submitRegister,
                               ),
                             ),
                           ],
@@ -82,7 +174,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           crossAxisAlignment: WrapCrossAlignment.center,
                           spacing: 14,
                           runSpacing: 10,
-                          children: [
+                          children: <Widget>[
                             _FooterLink(
                               label: 'Gizlilik',
                               onTap: () =>
@@ -90,13 +182,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             const _FooterDot(),
                             _FooterLink(
-                              label: 'Şartlar',
+                              label: 'Sartlar',
                               onTap: () =>
                                   _openScreen(const TermsOfUseScreen()),
                             ),
                             const _FooterDot(),
                             _FooterLink(
-                              label: 'Yardım',
+                              label: 'Yardim',
                               onTap: () =>
                                   _openScreen(const HelpSupportScreen()),
                             ),
@@ -123,7 +215,7 @@ class _RegisterShowcase extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Stack(
-      children: [
+      children: <Widget>[
         Positioned.fill(
           child: Container(
             decoration: BoxDecoration(
@@ -131,7 +223,7 @@ class _RegisterShowcase extends StatelessWidget {
               gradient: const LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
+                colors: <Color>[
                   Color(0xFFDCE8D0),
                   Color(0xFFB8C8A7),
                   Color(0xFF8A9A7C),
@@ -170,12 +262,12 @@ class _RegisterShowcase extends StatelessWidget {
             aspectRatio: 4 / 5,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: <Widget>[
                 const Spacer(),
                 Center(
                   child: Stack(
                     alignment: Alignment.center,
-                    children: const [
+                    children: const <Widget>[
                       _CircleGlow(size: 280, opacity: 0.18),
                       _RoundedGlow(size: 180, opacity: 0.2),
                       Icon(
@@ -206,12 +298,12 @@ class _RegisterShowcase extends StatelessWidget {
                 ),
                 const Spacer(),
                 Text(
-                  'MutfakAsistanım ile mutfağını daha akıllı yönet.',
+                  'Mutfagini daha duzenli ve kolay yonet.',
                   style: textTheme.headlineLarge?.copyWith(color: Colors.white),
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Hesabını oluştur, malzemelerini düzenle ve önerileri keşfet.',
+                  'Hesabini olustur, envanterini takip et ve sana uygun tarif onerilerini tek yerde gor.',
                   style: textTheme.bodyLarge?.copyWith(
                     color: Colors.white.withValues(alpha: 0.82),
                   ),
@@ -228,49 +320,86 @@ class _RegisterShowcase extends StatelessWidget {
 class _RegisterForm extends StatelessWidget {
   const _RegisterForm({
     required this.textTheme,
+    required this.firstNameController,
+    required this.lastNameController,
+    required this.usernameController,
+    required this.emailController,
+    required this.passwordController,
+    required this.repeatPasswordController,
     required this.obscurePassword,
     required this.obscureRepeatPassword,
+    required this.isSubmitting,
+    required this.errorMessage,
     required this.onTogglePassword,
     required this.onToggleRepeatPassword,
+    required this.onSubmit,
   });
 
   final TextTheme textTheme;
+  final TextEditingController firstNameController;
+  final TextEditingController lastNameController;
+  final TextEditingController usernameController;
+  final TextEditingController emailController;
+  final TextEditingController passwordController;
+  final TextEditingController repeatPasswordController;
   final bool obscurePassword;
   final bool obscureRepeatPassword;
+  final bool isSubmitting;
+  final String? errorMessage;
   final VoidCallback onTogglePassword;
   final VoidCallback onToggleRepeatPassword;
+  final Future<void> Function() onSubmit;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
+      children: <Widget>[
         const SizedBox(height: 12),
         const BrandMark(compact: true),
         const SizedBox(height: 24),
         Text(
-          'Yeni hesabınızı oluşturun ve mutfak deneyiminizi kişiselleştirin.',
+          'Yeni hesabini olustur ve mutfagini daha kolay yonetmeye basla.',
           style: textTheme.bodyLarge,
         ),
         const SizedBox(height: 32),
-        const CommonTextField(
-          label: 'Ad Soyad',
-          hintText: 'Adınızı ve soyadınızı girin',
+        CommonTextField(
+          label: 'Ad',
+          hintText: 'Adinizi girin',
           prefixIcon: Icons.person_outline_rounded,
           keyboardType: TextInputType.name,
+          controller: firstNameController,
         ),
         const SizedBox(height: 18),
-        const CommonTextField(
+        CommonTextField(
+          label: 'Soyad',
+          hintText: 'Soyadinizi girin',
+          prefixIcon: Icons.badge_outlined,
+          keyboardType: TextInputType.name,
+          controller: lastNameController,
+        ),
+        const SizedBox(height: 18),
+        CommonTextField(
+          label: 'Kullanici Adi',
+          hintText: 'kullanici_adi',
+          prefixIcon: Icons.alternate_email_rounded,
+          keyboardType: TextInputType.text,
+          controller: usernameController,
+        ),
+        const SizedBox(height: 18),
+        CommonTextField(
           label: 'E-posta',
           hintText: 'ornek@mutfak.com',
           prefixIcon: Icons.mail_outline_rounded,
           keyboardType: TextInputType.emailAddress,
+          controller: emailController,
         ),
         const SizedBox(height: 18),
         CommonTextField(
-          label: 'Şifre',
-          hintText: 'Şifrenizi oluşturun',
+          label: 'Sifre',
+          hintText: 'Sifrenizi olusturun',
           prefixIcon: Icons.lock_outline_rounded,
+          controller: passwordController,
           obscureText: obscurePassword,
           suffix: IconButton(
             onPressed: onTogglePassword,
@@ -284,9 +413,10 @@ class _RegisterForm extends StatelessWidget {
         ),
         const SizedBox(height: 18),
         CommonTextField(
-          label: 'Şifre Tekrar',
-          hintText: 'Şifrenizi yeniden girin',
+          label: 'Sifre Tekrar',
+          hintText: 'Sifrenizi yeniden girin',
           prefixIcon: Icons.lock_person_outlined,
+          controller: repeatPasswordController,
           obscureText: obscureRepeatPassword,
           suffix: IconButton(
             onPressed: onToggleRepeatPassword,
@@ -298,18 +428,22 @@ class _RegisterForm extends StatelessWidget {
             ),
           ),
         ),
+        if (errorMessage != null) ...<Widget>[
+          const SizedBox(height: 14),
+          _InlineErrorText(message: errorMessage!),
+        ],
         const SizedBox(height: 24),
         CommonButton(
-          label: 'Kayıt Ol',
-          onPressed: () {},
+          label: isSubmitting ? 'Hesap Olusturuluyor...' : 'Kayit Ol',
+          onPressed: isSubmitting ? null : () => onSubmit(),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
         ),
         const SizedBox(height: 26),
         Text.rich(
           TextSpan(
-            text: 'Zaten hesabın var mı? ',
+            text: 'Zaten hesabin var mi? ',
             style: textTheme.bodyMedium,
-            children: [
+            children: <InlineSpan>[
               WidgetSpan(
                 alignment: PlaceholderAlignment.middle,
                 child: TextButton(
@@ -320,7 +454,7 @@ class _RegisterForm extends StatelessWidget {
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                   child: Text(
-                    'Giriş Yap',
+                    'Giris Yap',
                     style: textTheme.labelLarge?.copyWith(
                       color: AppColors.primary,
                     ),
@@ -332,6 +466,32 @@ class _RegisterForm extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
       ],
+    );
+  }
+}
+
+class _InlineErrorText extends StatelessWidget {
+  const _InlineErrorText({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF4F1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE7B8AD)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          const Icon(Icons.error_outline_rounded, color: Color(0xFFB94C3A)),
+          const SizedBox(width: 10),
+          Expanded(child: Text(message)),
+        ],
+      ),
     );
   }
 }
@@ -354,7 +514,7 @@ class _ShowcaseBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
+        boxShadow: const <BoxShadow>[
           BoxShadow(
             color: AppColors.shadow,
             blurRadius: 20,

@@ -15,12 +15,12 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  final List<String> _dietOptions = const ['Tümü'];
+  final List<String> _dietOptions = const ['Tumu'];
 
   final TextEditingController _nameController = TextEditingController(text: '');
   final TextEditingController _emailController = TextEditingController(text: '');
 
-  String _selectedDiet = 'Tümü';
+  String _selectedDiet = 'Tumu';
   bool _notificationsEnabled = false;
   bool _darkModeEnabled = false;
   bool _sustainabilityTipsEnabled = false;
@@ -88,8 +88,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   padding: const EdgeInsets.fromLTRB(24, 16, 24, 140),
                   children: [
                     _ProfileHeader(
-                      name: _nameController.text,
-                      role: '',
+                      name: _nameController.text.trim().isEmpty
+                          ? 'Mutfagini kisisellestir'
+                          : _nameController.text.trim(),
+                      role: 'Tercihlerini ve bildirim ayarlarini buradan yonet.',
                     ),
                     const SizedBox(height: 32),
                     Container(
@@ -165,7 +167,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const SizedBox(height: 28),
                     Text(
-                      'UYGULAMA TERCİHLERİ',
+                      'UYGULAMA TERCIHLERI',
                       style: textTheme.labelSmall?.copyWith(
                         color: AppColors.textSecondary,
                         letterSpacing: 1.6,
@@ -173,8 +175,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const SizedBox(height: 14),
                     _PreferenceTile(
-                      title: 'Bildirimlere İzin Ver',
-                      subtitle: 'Yeni tarifler ve hatırlatıcılar',
+                      title: 'Bildirimleri Ac',
+                      subtitle: 'Yeni tarifler ve onemli hatirlatmalar',
                       icon: Icons.notifications_rounded,
                       iconBackgroundColor: AppColors.secondaryContainer,
                       iconColor: AppColors.secondary,
@@ -187,8 +189,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const SizedBox(height: 12),
                     _PreferenceTile(
-                      title: 'Karanlık Tema',
-                      subtitle: 'Göz yorgunluğunu azaltın',
+                      title: 'Koyu Tema',
+                      subtitle: 'Daha sakin bir gorunum kullan',
                       icon: Icons.dark_mode_rounded,
                       iconBackgroundColor: AppColors.secondaryContainer,
                       iconColor: AppColors.secondary,
@@ -201,8 +203,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const SizedBox(height: 12),
                     _PreferenceTile(
-                      title: 'Sürdürülebilirlik İpuçları',
-                      subtitle: 'Haftalık ekolojik mutfak önerileri',
+                      title: 'Surdurulebilirlik Ipuclari',
+                      subtitle: 'Haftalik tasarruf ve mutfak onerileri',
                       icon: Icons.eco_rounded,
                       iconBackgroundColor: AppColors.primaryContainer,
                       iconColor: AppColors.primary,
@@ -240,11 +242,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 760),
               child: CommonButton(
-                label: 'Kaydet',
+                label: 'Degisiklikleri Kaydet',
                 icon: const Icon(Icons.save_rounded),
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Ayarlar kaydedildi.')),
+                    const SnackBar(
+                      content: Text('Ayarlarin basariyla kaydedildi.'),
+                    ),
                   );
                 },
               ),

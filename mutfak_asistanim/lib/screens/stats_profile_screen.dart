@@ -40,20 +40,23 @@ class _StatsProfileScreenState extends State<StatsProfileScreen> {
   ];
 
   final List<AchievementBadgeData> _achievements = [];
-  final String _profileInitials = '';
-  final String _profileName = '';
-  final String _profileRole = '';
+  final String _profileInitials = 'MA';
+  final String _profileName = 'Mutfak Profili';
+  final String _profileRole = 'Kullanim ozetin burada gorunur.';
   final String _kitchenScore = '0 XP';
   final double _progressValue = 0;
-  final String _nextLevelLabel = '';
+  final String _nextLevelLabel =
+      'Uygulamayi kullandikca mutfak puanin burada ilerler.';
   final double _savedFoodRatio = 0;
   final double _wasteRatio = 0;
   final String _analysisDescription =
-      'Veriler backend entegrasyonu tamamlandığında burada gösterilecek.';
-  final String _weeklyInsightBadge = '';
-  final String _weeklyInsightTitle = '';
-  final String _weeklyInsightDescription = '';
-  final String _weeklyInsightActionLabel = '';
+      'Envanter ve kullanim verilerin arttikca bu alan otomatik olarak guncellenecek.';
+  final String _weeklyInsightBadge = 'HAFTALIK OZET';
+  final String _weeklyInsightTitle =
+      'Kullandikca sana ozel mutfak analizleri burada gorunecek.';
+  final String _weeklyInsightDescription =
+      'Tasarruf, kullanim ve israf aliskanliklarin uygulamayi kullandikca daha net gorunur hale gelir.';
+  final String _weeklyInsightActionLabel = 'Verileri Takip Et';
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +112,7 @@ class _StatsProfileScreenState extends State<StatsProfileScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'İstatistikler',
+                    'İlerleme ve İstatistikler',
                     style: textTheme.displayMedium?.copyWith(
                       color: AppColors.textPrimary,
                     ),
@@ -118,7 +121,7 @@ class _StatsProfileScreenState extends State<StatsProfileScreen> {
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 620),
                     child: Text(
-                      'Mutfak alışkanlıklarınızın çevreye ve bütçenize olan etkisini takip edin.',
+                      'Mutfaktaki tasarrufunu, kullanim aliskanliklarini ve gelisimini buradan takip et.',
                       style: textTheme.bodyLarge?.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -301,7 +304,7 @@ class _FoodUsageAnalysisCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Gıda Kullanım Analizi',
+                'Kullanim Analizi',
                 style: textTheme.headlineMedium?.copyWith(
                   color: AppColors.primary,
                 ),
@@ -316,13 +319,13 @@ class _FoodUsageAnalysisCard extends StatelessWidget {
               const SizedBox(height: 20),
               _LegendItem(
                 color: AppColors.primary,
-                label: 'Kurtarılan Gıdalar',
+                label: 'Degerlendirilen Gidalar',
                 value: '${(savedFoodRatio * 100).round()}%',
               ),
               const SizedBox(height: 12),
               _LegendItem(
                 color: AppColors.tertiaryContainer,
-                label: 'İsraf Oranı',
+                label: 'Israf Orani',
                 value: '${(wasteRatio * 100).round()}%',
               ),
             ],
@@ -522,7 +525,7 @@ class _ProfileSummaryCard extends StatelessWidget {
                   onPressed: () =>
                       Navigator.of(context).pushNamed(SettingsScreen.routeName),
                   icon: const Icon(Icons.settings_rounded),
-                  label: const Text('Düzenle'),
+                  label: const Text('Profili Düzenle'),
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.surface,
                     foregroundColor: AppColors.primary,
@@ -593,7 +596,7 @@ class _AchievementsSection extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Mutfak Başarıları',
+                  'Başarılar',
                   style: textTheme.headlineMedium?.copyWith(
                     color: AppColors.primary,
                   ),
@@ -615,6 +618,23 @@ class _AchievementsSection extends StatelessWidget {
           LayoutBuilder(
             builder: (context, constraints) {
               final columns = constraints.maxWidth >= 760 ? 4 : 2;
+
+              if (achievements.isEmpty) {
+                return Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: Text(
+                    'Uygulamayi kullandikca kazanacagin basarilar burada gorunecek.',
+                    style: textTheme.bodyLarge?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                );
+              }
 
               return GridView.builder(
                 shrinkWrap: true,

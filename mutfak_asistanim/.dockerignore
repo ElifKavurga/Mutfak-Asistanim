@@ -1,0 +1,9 @@
+.dart_tool
+.flutter
+.flutter-plugins-dependencies
+.flutter_tool_state
+build
+web-build.err.log
+web-build.out.log
+web-serve.err.log
+web-serve.out.log

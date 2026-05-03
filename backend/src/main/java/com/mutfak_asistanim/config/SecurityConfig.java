@@ -1,10 +1,13 @@
 package com.mutfak_asistanim.config;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -26,6 +29,7 @@ public class SecurityConfig {
 	public static final String REGISTER = "/register";
 	public static final String AUTHENTICATE = "/authenticate";
 	public static final String REFRESH_TOKEN = "/refreshToken";
+	public static final String HEALTH = "/health";
  	
 	@Autowired
 	private AuthenticationProvider authenticationProvider;
@@ -35,6 +39,9 @@ public class SecurityConfig {
 	
 	@Autowired
 	private AuthEntryPoint authEntryPoint;
+
+	@Value("${app.cors.allowed-origin-patterns:http://localhost:*,http://127.0.0.1:*,http://10.0.2.2:*,http://192.168.*.*:*,https://*.up.railway.app,https://*.railway.app}")
+	private String allowedOriginPatterns;
 	
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -43,7 +50,8 @@ public class SecurityConfig {
 		.exceptionHandling(exception -> exception
 				.authenticationEntryPoint(authEntryPoint))
 		.authorizeHttpRequests(request -> 
-		request.requestMatchers(REGISTER, AUTHENTICATE, REFRESH_TOKEN).permitAll()
+		request.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+		.requestMatchers(REGISTER, AUTHENTICATE, REFRESH_TOKEN, HEALTH).permitAll()
 		.anyRequest()
 		.authenticated())
 		.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -56,10 +64,14 @@ public class SecurityConfig {
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(List.of("http://localhost:5173"));
-		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+		configuration.setAllowedOriginPatterns(Arrays.stream(allowedOriginPatterns.split(","))
+				.map(String::trim)
+				.filter(pattern -> !pattern.isEmpty())
+				.toList());
+		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 		configuration.setAllowCredentials(true);
-		configuration.addAllowedHeader("*");
+		configuration.setAllowedHeaders(List.of("*"));
+		configuration.setExposedHeaders(List.of("Authorization"));
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);
 		return source;

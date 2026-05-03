@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../services/backend_api_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/brand_mark.dart';
 import '../widgets/common_button.dart';
@@ -19,13 +20,64 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
   bool _rememberMe = true;
   bool _obscurePassword = true;
+  bool _isSubmitting = false;
+  String? _errorMessage;
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   void _openScreen(Widget screen) {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute<void>(builder: (_) => screen));
+    Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => screen));
+  }
+
+  Future<void> _submitLogin() async {
+    final username = _usernameController.text.trim();
+    final password = _passwordController.text;
+
+    if (username.isEmpty || password.isEmpty) {
+      setState(() {
+        _errorMessage = 'Kullanici adi ve sifre zorunludur.';
+      });
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+      _errorMessage = null;
+    });
+
+    try {
+      await BackendApiService.instance.authenticate(
+        username: username,
+        password: password,
+      );
+      if (!mounted) {
+        return;
+      }
+
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
+        (route) => false,
+      );
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _errorMessage = error.toString();
+        _isSubmitting = false;
+      });
+    }
   }
 
   @override
@@ -48,12 +100,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 1160),
                     child: Column(
-                      children: [
+                      children: <Widget>[
                         Flex(
                           direction: isWide ? Axis.horizontal : Axis.vertical,
                           crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            if (isWide) ...[
+                          children: <Widget>[
+                            if (isWide) ...<Widget>[
                               const Expanded(
                                 child: Padding(
                                   padding: EdgeInsets.only(right: 48),
@@ -65,8 +117,12 @@ class _LoginScreenState extends State<LoginScreen> {
                               constraints: const BoxConstraints(maxWidth: 430),
                               child: _LoginForm(
                                 textTheme: textTheme,
+                                usernameController: _usernameController,
+                                passwordController: _passwordController,
                                 rememberMe: _rememberMe,
                                 obscurePassword: _obscurePassword,
+                                isSubmitting: _isSubmitting,
+                                errorMessage: _errorMessage,
                                 onRememberChanged: (value) {
                                   setState(() {
                                     _rememberMe = value;
@@ -77,6 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     _obscurePassword = !_obscurePassword;
                                   });
                                 },
+                                onSubmit: _submitLogin,
                                 openScreen: _openScreen,
                               ),
                             ),
@@ -88,24 +145,23 @@ class _LoginScreenState extends State<LoginScreen> {
                           crossAxisAlignment: WrapCrossAlignment.center,
                           spacing: 14,
                           runSpacing: 10,
-                          children: [
+                          children: <Widget>[
                             _FooterLink(
                               label: 'Gizlilik',
-                              onTap:
-                                  () =>
-                                      _openScreen(const PrivacyPolicyScreen()),
+                              onTap: () =>
+                                  _openScreen(const PrivacyPolicyScreen()),
                             ),
                             const _FooterDot(),
                             _FooterLink(
-                              label: 'Şartlar',
-                              onTap:
-                                  () => _openScreen(const TermsOfUseScreen()),
+                              label: 'Sartlar',
+                              onTap: () =>
+                                  _openScreen(const TermsOfUseScreen()),
                             ),
                             const _FooterDot(),
                             _FooterLink(
-                              label: 'Yardım',
-                              onTap:
-                                  () => _openScreen(const HelpSupportScreen()),
+                              label: 'Yardim',
+                              onTap: () =>
+                                  _openScreen(const HelpSupportScreen()),
                             ),
                           ],
                         ),
@@ -130,7 +186,7 @@ class _LoginShowcase extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Stack(
-      children: [
+      children: <Widget>[
         Positioned.fill(
           child: Container(
             decoration: BoxDecoration(
@@ -138,7 +194,7 @@ class _LoginShowcase extends StatelessWidget {
               gradient: const LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
+                colors: <Color>[
                   Color(0xFFDCE8D0),
                   Color(0xFFB8C8A7),
                   Color(0xFF8A9A7C),
@@ -177,12 +233,12 @@ class _LoginShowcase extends StatelessWidget {
             aspectRatio: 4 / 5,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: <Widget>[
                 const Spacer(),
                 Center(
                   child: Stack(
                     alignment: Alignment.center,
-                    children: [
+                    children: <Widget>[
                       Container(
                         width: 280,
                         height: 280,
@@ -227,12 +283,12 @@ class _LoginShowcase extends StatelessWidget {
                 ),
                 const Spacer(),
                 Text(
-                  'Mutfakta ilham dolu anlar sizi bekliyor.',
+                  'Mutfakta ilham dolu anlar seni bekliyor.',
                   style: textTheme.headlineLarge?.copyWith(color: Colors.white),
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Sizin için özelleştirilmiş tarifler ve mutfak planlayıcısı.',
+                  'Giris yap, mutfagini takip etmeye basla ve envanterine uygun tarifleri kolayca kesfet.',
                   style: textTheme.bodyLarge?.copyWith(
                     color: Colors.white.withValues(alpha: 0.82),
                   ),
@@ -264,7 +320,7 @@ class _ShowcaseBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
+        boxShadow: const <BoxShadow>[
           BoxShadow(
             color: AppColors.shadow,
             blurRadius: 20,
@@ -280,44 +336,56 @@ class _ShowcaseBadge extends StatelessWidget {
 class _LoginForm extends StatelessWidget {
   const _LoginForm({
     required this.textTheme,
+    required this.usernameController,
+    required this.passwordController,
     required this.rememberMe,
     required this.obscurePassword,
+    required this.isSubmitting,
+    required this.errorMessage,
     required this.onRememberChanged,
     required this.onTogglePassword,
+    required this.onSubmit,
     required this.openScreen,
   });
 
   final TextTheme textTheme;
+  final TextEditingController usernameController;
+  final TextEditingController passwordController;
   final bool rememberMe;
   final bool obscurePassword;
+  final bool isSubmitting;
+  final String? errorMessage;
   final ValueChanged<bool> onRememberChanged;
   final VoidCallback onTogglePassword;
+  final Future<void> Function() onSubmit;
   final ValueChanged<Widget> openScreen;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
+      children: <Widget>[
         const SizedBox(height: 12),
         const BrandMark(compact: true),
         const SizedBox(height: 24),
         Text(
-          'Dijital mutfağınıza hoş geldiniz. Devam etmek için giriş yapın.',
+          'Hesabina giris yaparak envanterini, bildirimlerini ve sana ozel tarif onerilerini goruntule.',
           style: textTheme.bodyLarge,
         ),
         const SizedBox(height: 32),
-        const CommonTextField(
-          label: 'E-posta Adresi',
-          hintText: 'ornek@mutfak.com',
-          prefixIcon: Icons.mail_outline_rounded,
-          keyboardType: TextInputType.emailAddress,
+        CommonTextField(
+          label: 'Kullanici Adi',
+          hintText: 'kullanici_adi',
+          prefixIcon: Icons.person_outline_rounded,
+          keyboardType: TextInputType.text,
+          controller: usernameController,
         ),
         const SizedBox(height: 18),
         CommonTextField(
-          label: 'Şifre',
-          hintText: 'Şifrenizi girin',
+          label: 'Sifre',
+          hintText: 'Sifrenizi girin',
           prefixIcon: Icons.lock_outline_rounded,
+          controller: passwordController,
           obscureText: obscurePassword,
           suffix: IconButton(
             onPressed: onTogglePassword,
@@ -329,19 +397,25 @@ class _LoginForm extends StatelessWidget {
             ),
           ),
         ),
+        if (errorMessage != null) ...<Widget>[
+          const SizedBox(height: 14),
+          _InlineErrorText(message: errorMessage!),
+        ],
         const SizedBox(height: 14),
         Row(
-          children: [
+          children: <Widget>[
             SizedBox(
               width: 24,
               height: 24,
               child: Checkbox(
                 value: rememberMe,
-                onChanged: (value) => onRememberChanged(value ?? false),
+                onChanged: isSubmitting
+                    ? null
+                    : (value) => onRememberChanged(value ?? false),
               ),
             ),
             const SizedBox(width: 10),
-            Text('Beni hatırla', style: textTheme.bodyMedium),
+            Text('Beni hatirla', style: textTheme.bodyMedium),
             const Spacer(),
             TextButton(
               onPressed: () => openScreen(const ForgotPasswordScreen()),
@@ -351,7 +425,7 @@ class _LoginForm extends StatelessWidget {
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
               child: Text(
-                'Şifremi Unuttum',
+                'Sifremi Unuttum',
                 style: textTheme.labelMedium?.copyWith(
                   color: AppColors.primary,
                 ),
@@ -361,25 +435,13 @@ class _LoginForm extends StatelessWidget {
         ),
         const SizedBox(height: 22),
         CommonButton(
-          label: 'Giriş Yap',
-          onPressed: () {},
+          label: isSubmitting ? 'Giris Yapiliyor...' : 'Giris Yap',
+          onPressed: isSubmitting ? null : () => onSubmit(),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-        ),
-        const SizedBox(height: 12),
-        // Demo giriş geçici yönlendirme - backend sonrası değiştirilecek
-        CommonButton(
-          label: 'Demo Giriş',
-          variant: CommonButtonVariant.secondary,
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const HomeScreen()),
-            );
-          },
         ),
         const SizedBox(height: 22),
         Row(
-          children: [
+          children: <Widget>[
             const Expanded(child: Divider()),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -398,25 +460,24 @@ class _LoginForm extends StatelessWidget {
         const SizedBox(height: 26),
         Text.rich(
           TextSpan(
-            text: 'Hesabınız yok mu? ',
+            text: 'Hesabin yok mu? ',
             style: textTheme.bodyMedium,
-            children: [
+            children: <InlineSpan>[
               WidgetSpan(
                 alignment: PlaceholderAlignment.middle,
                 child: TextButton(
-                  onPressed:
-                      () => Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => const RegisterScreen(),
-                        ),
-                      ),
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const RegisterScreen(),
+                    ),
+                  ),
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                   child: Text(
-                    'Kayıt Ol',
+                    'Kayit Ol',
                     style: textTheme.labelLarge?.copyWith(
                       color: AppColors.primary,
                     ),
@@ -428,6 +489,32 @@ class _LoginForm extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
       ],
+    );
+  }
+}
+
+class _InlineErrorText extends StatelessWidget {
+  const _InlineErrorText({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF4F1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE7B8AD)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          const Icon(Icons.error_outline_rounded, color: Color(0xFFB94C3A)),
+          const SizedBox(width: 10),
+          Expanded(child: Text(message)),
+        ],
+      ),
     );
   }
 }

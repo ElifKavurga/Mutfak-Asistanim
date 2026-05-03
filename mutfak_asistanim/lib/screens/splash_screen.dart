@@ -108,7 +108,7 @@ class _SplashBrandSection extends StatelessWidget {
         const BrandMark(centered: true),
         const SizedBox(height: 12),
         Text(
-          'Akıllı mutfak deneyimi',
+          'Mutfagini daha duzenli yonetmeye hazir ol',
           textAlign: TextAlign.center,
           style: textTheme.bodyLarge,
         ),
@@ -192,7 +192,7 @@ class _SplashLoadingSection extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         Text(
-          'Mutfak alanın hazırlanıyor',
+          'Mutfak deneyimin hazirlaniyor',
           textAlign: TextAlign.center,
           style: AppTextStyles.textTheme.labelSmall,
         ),

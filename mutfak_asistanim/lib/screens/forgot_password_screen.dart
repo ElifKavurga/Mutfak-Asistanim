@@ -40,14 +40,14 @@ class ForgotPasswordScreen extends StatelessWidget {
                       const BrandMark(compact: true),
                       const SizedBox(height: 24),
                       Text(
-                        'Şifremi Unuttum',
+                        'Sifremi Unuttum',
                         style: textTheme.headlineLarge?.copyWith(
                           color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Hesabınıza bağlı e-posta adresini girin. Şifre sıfırlama bağlantısını bu adrese gönderebiliriz.',
+                        'Hesabina bagli e-posta adresini gir. Sifre yenileme baglantisini bu adrese gonderelim.',
                         style: textTheme.bodyLarge,
                       ),
                       const SizedBox(height: 28),
@@ -59,7 +59,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 24),
                       CommonButton(
-                        label: 'Şifre Sıfırlama Bağlantısı Gönder',
+                        label: 'Sifre Yenileme Baglantisi Gonder',
                         onPressed: () {},
                         padding: const EdgeInsets.symmetric(
                           horizontal: 24,
@@ -68,7 +68,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       CommonButton(
-                        label: 'Giriş ekranına dön',
+                        label: 'Giris Ekranina Don',
                         variant: CommonButtonVariant.ghost,
                         onPressed: () => Navigator.of(context).pop(),
                       ),

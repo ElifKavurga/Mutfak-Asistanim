@@ -14,7 +14,7 @@ class AddRecipeScreen extends StatefulWidget {
 }
 
 class _AddRecipeScreenState extends State<AddRecipeScreen> {
-  final List<String> _categories = const ['Tümü'];
+  final List<String> _categories = const ['Tum Tarifler'];
   static const List<String> _durationUnits = ['Dakika'];
 
   final TextEditingController _recipeNameController = TextEditingController();
@@ -25,7 +25,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
     TextEditingController(),
   ];
 
-  String? _selectedCategory = 'Tümü';
+  String? _selectedCategory = 'Tum Tarifler';
   String _selectedDurationUnit = _durationUnits.first;
 
   @override
@@ -112,7 +112,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                         const SizedBox(height: 24),
                         _LabeledTextField(
                           label: 'Tarif Adı',
-                          hintText: 'Tarif adı',
+                          hintText: 'Tarif adını yaz',
                           prefixIcon: Icons.menu_book_rounded,
                           controller: _recipeNameController,
                         ),
@@ -234,7 +234,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                         const SizedBox(height: 28),
                         _LabeledTextField(
                           label: 'Hazırlanış Adımları',
-                          hintText: 'Adımları yazın',
+                          hintText: 'Adımları sırayla yazın',
                           prefixIcon: Icons.format_list_numbered_rounded,
                           controller: _stepsController,
                           maxLines: 6,
@@ -293,7 +293,7 @@ class _RecipeHero extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Haftalık Planına\nYeni Tatlar Ekle',
+                'Haftalık Planına\nYeni Tarifler Ekle',
                 style: textTheme.displayMedium?.copyWith(
                   color: AppColors.primary,
                   height: 1.02,
@@ -301,7 +301,7 @@ class _RecipeHero extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'Yeni tariflerini tek ekranda tanımla, öğün planına ekle ve mutfak akışını düzenli tut.',
+                'Tariflerini tek ekranda düzenle, öğün planına ekle ve mutfak akışını daha rahat yönet.',
                 style: textTheme.bodyLarge,
               ),
               const SizedBox(height: 20),
@@ -319,7 +319,7 @@ class _RecipeHero extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Haftalık Planına\nYeni Tatlar Ekle',
+                    'Haftalık Planına\nYeni Tarifler Ekle',
                     style: textTheme.displayMedium?.copyWith(
                       color: AppColors.primary,
                       height: 1.02,
@@ -329,7 +329,7 @@ class _RecipeHero extends StatelessWidget {
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 460),
                     child: Text(
-                      'Yeni tariflerini tek ekranda tanımla, öğün planına ekle ve mutfak akışını düzenli tut.',
+                      'Tariflerini tek ekranda düzenle, öğün planına ekle ve mutfak akışını daha rahat yönet.',
                       style: textTheme.bodyLarge,
                     ),
                   ),
@@ -459,7 +459,7 @@ class _PhotoPickerPlaceholder extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              'Hazırladığın tabağı veya ilham görselini buraya ekleyebilirsin.',
+              'Hazırladığın yemeğin fotoğrafını ya da ilham aldığın görseli buraya ekleyebilirsin.',
               style: textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
@@ -502,7 +502,7 @@ class _DurationField extends StatelessWidget {
                 controller: durationController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
-                  hintText: 'Süre',
+                  hintText: 'Örneğin 25',
                   prefixIcon: Icon(
                     Icons.timer_rounded,
                     color: AppColors.outline,
@@ -568,7 +568,7 @@ class _IngredientField extends StatelessWidget {
                 onPressed: onRemove,
                 icon: const Icon(Icons.remove_circle_outline_rounded),
                 color: AppColors.outline,
-                tooltip: 'Malzemeyi kaldır',
+                tooltip: 'Malzemeyi listeden çıkar',
               )
             : null,
       ),

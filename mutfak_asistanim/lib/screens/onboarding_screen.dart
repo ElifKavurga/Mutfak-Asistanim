@@ -20,8 +20,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   static const List<_OnboardingPageData> _pages = [
     _OnboardingPageData(
-      title: 'İsrafı Önle',
-      description: 'Mutfağındaki malzemeleri akıllıca yöneterek israfı azalt.',
+      title: 'Israfi Azalt',
+      description:
+          'Mutfagindaki urunleri takip ederek gereksiz israfi azalt ve daha planli tuketim aliskanligi kazan.',
       centerIcon: Icons.recycling_rounded,
       backgroundIcon: Icons.spa_rounded,
       topIcon: Icons.restaurant_rounded,
@@ -32,8 +33,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       bottomIconColor: AppColors.primary,
     ),
     _OnboardingPageData(
-      title: 'Akıllı Takip',
-      description: 'Ürünlerinin son kullanma tarihlerini kolayca takip et.',
+      title: 'Tarihleri Kolayca Takip Et',
+      description:
+          'Son kullanma tarihlerini tek ekranda gor, yaklasan urunler icin zamaninda aksiyon al.',
       centerIcon: Icons.event_note_rounded,
       backgroundIcon: Icons.schedule_rounded,
       topIcon: Icons.notifications_active_rounded,
@@ -44,8 +46,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       bottomIconColor: AppColors.secondary,
     ),
     _OnboardingPageData(
-      title: 'Tarif Önerileri',
-      description: 'Elindeki malzemelerle yapabileceğin tarifleri keşfet.',
+      title: 'Malzemene Gore Tarif Bul',
+      description:
+          'Evde bulunan malzemelerle hazirlayabilecegin tarifleri kesfet ve ne pisirecegine daha kolay karar ver.',
       centerIcon: Icons.menu_book_rounded,
       backgroundIcon: Icons.ramen_dining_rounded,
       topIcon: Icons.tips_and_updates_rounded,
@@ -56,8 +59,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       bottomIconColor: AppColors.primaryDim,
     ),
     _OnboardingPageData(
-      title: 'Tasarruf Et',
-      description: 'Hem bütçeni hem doğayı koru.',
+      title: 'Butceni ve Zamanini Koru',
+      description:
+          'Planli alisveris ve dogru saklama ile hem masrafi azalt hem mutfagini daha verimli yonet.',
       centerIcon: Icons.savings_rounded,
       backgroundIcon: Icons.energy_savings_leaf_rounded,
       topIcon: Icons.payments_rounded,
@@ -121,7 +125,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   child: Column(
                     children: [
                       Text(
-                        'MutfakAsistanım',
+                        'MutfakAsistanim',
                         style: textTheme.titleLarge?.copyWith(
                           color: AppColors.primary,
                           fontWeight: FontWeight.w800,
@@ -191,7 +195,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       const SizedBox(height: 36),
                       CommonButton(
                         label: _currentPage == _pages.length - 1
-                            ? 'Başla'
+                            ? 'Basla'
                             : 'Devam Et',
                         onPressed: _handleContinue,
                       ),

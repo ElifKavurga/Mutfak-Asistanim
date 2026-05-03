@@ -66,13 +66,13 @@ class GoogleSignInScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        'Google ile Giriş',
+                        'Google ile Giris',
                         style: textTheme.headlineLarge,
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Google hesabınızla hızlı, güvenli ve pratik şekilde giriş yapabilirsiniz. Bu ekran şimdilik arayüz akışını tamamlamak için hazırlanmıştır.',
+                        'Google hesabinla daha hizli ve pratik sekilde giris yapabilirsin. Bu ekran su anda tanitim amacli hazir durumda.',
                         textAlign: TextAlign.center,
                         style: textTheme.bodyLarge,
                       ),
@@ -87,7 +87,7 @@ class GoogleSignInScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       CommonButton(
-                        label: 'Geri dön',
+                        label: 'Geri Don',
                         variant: CommonButtonVariant.ghost,
                         onPressed: () => Navigator.of(context).pop(),
                       ),

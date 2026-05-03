@@ -5,35 +5,49 @@ import '../theme/app_colors.dart';
 
 class InventoryItemData {
   const InventoryItemData({
+    this.inventoryId,
     required this.name,
     required this.statusLabel,
     required this.quantity,
     required this.unit,
+    this.unitTypeCode,
+    this.expirationDate,
     required this.category,
     required this.icon,
     required this.backgroundColors,
     required this.isCritical,
   });
 
+  final int? inventoryId;
   final String name;
   final String statusLabel;
-  final int quantity;
+  final num quantity;
   final String unit;
+  final String? unitTypeCode;
+  final DateTime? expirationDate;
   final String category;
   final IconData icon;
   final List<Color> backgroundColors;
   final bool isCritical;
 
-  InventoryItemData copyWith({int? quantity}) {
+  InventoryItemData copyWith({
+    num? quantity,
+    String? statusLabel,
+    DateTime? expirationDate,
+    bool? isCritical,
+  }) {
     return InventoryItemData(
+      inventoryId: inventoryId,
       name: name,
-      statusLabel: statusLabel,
+      statusLabel: statusLabel ?? this.statusLabel,
       quantity: quantity ?? this.quantity,
       unit: unit,
+      unitTypeCode: unitTypeCode,
+      expirationDate: expirationDate ?? this.expirationDate,
       category: category,
       icon: icon,
       backgroundColors: backgroundColors,
-      isCritical: isCritical,
+      isCritical: isCritical ?? this.isCritical,
     );
   }
 
@@ -43,7 +57,7 @@ class InventoryItemData {
       title: name,
       category: category,
       description: '',
-      amountLabel: '$quantity $unit',
+      amountLabel: '${_formatQuantity(quantity)} $unit',
       expiryLabel: statusLabel,
       freshnessValue: freshnessValue,
       freshnessPercentLabel: '${(freshnessValue * 100).round()}%',
@@ -78,9 +92,10 @@ class InventoryItemTile extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
         onTap: () {
-          Navigator.of(
-            context,
-          ).pushNamed(ProductDetailScreen.routeName, arguments: item.toRouteData());
+          Navigator.of(context).pushNamed(
+            ProductDetailScreen.routeName,
+            arguments: item.toRouteData(),
+          );
         },
         child: Ink(
           padding: const EdgeInsets.all(14),
@@ -145,7 +160,7 @@ class InventoryItemTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    '${item.quantity} ${item.unit}',
+                    '${_formatQuantity(item.quantity)} ${item.unit}',
                     style: textTheme.titleMedium?.copyWith(
                       color: AppColors.primary,
                       fontWeight: FontWeight.w800,
@@ -174,6 +189,13 @@ class InventoryItemTile extends StatelessWidget {
       ),
     );
   }
+}
+
+String _formatQuantity(num quantity) {
+  if (quantity == quantity.roundToDouble()) {
+    return quantity.toInt().toString();
+  }
+  return quantity.toStringAsFixed(1);
 }
 
 class _QuantityButton extends StatelessWidget {

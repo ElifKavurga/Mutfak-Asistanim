@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../services/mock_kitchen_data_service.dart';
+import '../services/backend_api_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/dashboard_bottom_nav.dart';
 import '../widgets/inventory_item_tile.dart';
@@ -20,10 +20,10 @@ class InventoryScreen extends StatefulWidget {
 }
 
 class _InventoryScreenState extends State<InventoryScreen> {
-  List<String> _categories = const <String>['Tümü'];
+  List<String> _categories = const <String>[BackendApiService.allFilterLabel];
   List<InventoryItemData> _items = const <InventoryItemData>[];
   List<InventoryStatCardData> _stats = const <InventoryStatCardData>[];
-  String _selectedCategory = 'Tümü';
+  String _selectedCategory = BackendApiService.allFilterLabel;
   String? _loadError;
   bool _isLoading = true;
 
@@ -40,7 +40,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     });
 
     try {
-      final data = await MockKitchenDataService.instance.loadInventoryData();
+      final data = await BackendApiService.instance.loadInventoryData();
       if (!mounted) {
         return;
       }
@@ -64,22 +64,38 @@ class _InventoryScreenState extends State<InventoryScreen> {
     }
   }
 
-  void _updateQuantity(int index, int delta) {
+  Future<void> _updateQuantity(int index, int delta) async {
     final current = _items[index];
     final nextQuantity = current.quantity + delta;
     if (nextQuantity <= 0) {
       return;
     }
 
-    setState(() {
-      final updated = List<InventoryItemData>.of(_items);
-      updated[index] = current.copyWith(quantity: nextQuantity);
-      _items = updated;
-    });
+    try {
+      final updatedItem = await BackendApiService.instance
+          .updateInventoryQuantity(item: current, quantity: nextQuantity);
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        final updated = List<InventoryItemData>.of(_items);
+        updated[index] = updatedItem;
+        _items = updated;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(error.toString())));
+    }
   }
 
   List<InventoryItemData> get _filteredItems {
-    if (_selectedCategory == 'Tümü') {
+    if (_selectedCategory == BackendApiService.allFilterLabel) {
       return _items;
     }
 
@@ -88,12 +104,22 @@ class _InventoryScreenState extends State<InventoryScreen> {
         .toList(growable: false);
   }
 
-  void _openAddProduct() {
-    Navigator.of(context).pushNamed(AddProductScreen.routeName);
+  Future<void> _openAddProduct() async {
+    final didSave = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(builder: (_) => const AddProductScreen()),
+    );
+    if (didSave == true && mounted) {
+      await _loadData();
+    }
   }
 
-  void _openAiCamera() {
-    Navigator.of(context).pushNamed(AiCameraScreen.routeName);
+  Future<void> _openAiCamera() async {
+    final didSave = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(builder: (_) => const AiCameraScreen()),
+    );
+    if (didSave == true && mounted) {
+      await _loadData();
+    }
   }
 
   @override
@@ -110,14 +136,14 @@ class _InventoryScreenState extends State<InventoryScreen> {
           icon: const Icon(Icons.menu_rounded),
         ),
         title: Text(
-          'MutfakAsistanım',
+          'MutfakAsistanim',
           style: textTheme.titleLarge?.copyWith(
             color: AppColors.primary,
             fontWeight: FontWeight.w800,
           ),
         ),
         centerTitle: true,
-        actions: [
+        actions: <Widget>[
           Padding(
             padding: const EdgeInsets.only(right: 10),
             child: IconButton(
@@ -152,7 +178,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
       floatingActionButton: Container(
         decoration: const BoxDecoration(
           shape: BoxShape.circle,
-          boxShadow: [
+          boxShadow: <BoxShadow>[
             BoxShadow(
               color: AppColors.shadow,
               blurRadius: 28,
@@ -171,7 +197,10 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  Widget _buildBody(TextTheme textTheme, List<InventoryItemData> filteredItems) {
+  Widget _buildBody(
+    TextTheme textTheme,
+    List<InventoryItemData> filteredItems,
+  ) {
     if (_isLoading) {
       return const Padding(
         padding: EdgeInsets.only(top: 120),
@@ -180,24 +209,19 @@ class _InventoryScreenState extends State<InventoryScreen> {
     }
 
     if (_loadError != null) {
-      return _InventoryErrorState(
-        message: _loadError!,
-        onRetry: _loadData,
-      );
+      return _InventoryErrorState(message: _loadError!, onRetry: _loadData);
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+      children: <Widget>[
         Text(
-          'Buzdolabım',
-          style: textTheme.displayMedium?.copyWith(
-            color: AppColors.primary,
-          ),
+          'Buzdolabim',
+          style: textTheme.displayMedium?.copyWith(color: AppColors.primary),
         ),
         const SizedBox(height: 8),
         Text(
-          'Mock JSON verisinden gelen malzemeler, son kullanımı yakın olana göre sıralandı.',
+          'Buzdolabindaki urunleri tek yerden gor, filtrele ve son kullanma tarihine gore kolayca takip et.',
           style: textTheme.bodyLarge,
         ),
         const SizedBox(height: 24),
@@ -207,8 +231,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
             final crossAxisCount = width >= 900
                 ? 3
                 : width >= 580
-                    ? 2
-                    : 1;
+                ? 2
+                : 1;
 
             return GridView.builder(
               shrinkWrap: true,
@@ -230,20 +254,22 @@ class _InventoryScreenState extends State<InventoryScreen> {
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
-            children: _categories.map((category) {
-              return Padding(
-                padding: const EdgeInsets.only(right: 10),
-                child: RecipeFilterChip(
-                  label: category,
-                  selected: _selectedCategory == category,
-                  onTap: () {
-                    setState(() {
-                      _selectedCategory = category;
-                    });
-                  },
-                ),
-              );
-            }).toList(growable: false),
+            children: _categories
+                .map((category) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 10),
+                    child: RecipeFilterChip(
+                      label: category,
+                      selected: _selectedCategory == category,
+                      onTap: () {
+                        setState(() {
+                          _selectedCategory = category;
+                        });
+                      },
+                    ),
+                  );
+                })
+                .toList(growable: false),
           ),
         ),
         const SizedBox(height: 24),
@@ -255,7 +281,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
             borderRadius: BorderRadius.circular(32),
           ),
           child: Column(
-            children: [
+            children: <Widget>[
               if (filteredItems.isEmpty)
                 _InventoryEmptyState(onAddProduct: _openAddProduct)
               else
@@ -286,7 +312,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   ),
                   icon: const Icon(Icons.add_circle_rounded),
                   label: Text(
-                    'Yeni Ürün Ekle',
+                    'Yeni Urun Ekle',
                     style: textTheme.labelLarge?.copyWith(
                       color: AppColors.primaryDim,
                     ),
@@ -313,7 +339,7 @@ class _InventoryEmptyState extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Column(
-        children: [
+        children: <Widget>[
           const Icon(
             Icons.inventory_2_outlined,
             color: AppColors.primary,
@@ -321,14 +347,12 @@ class _InventoryEmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'Bu kategoride ürün görünmüyor',
-            style: textTheme.titleLarge?.copyWith(
-              color: AppColors.textPrimary,
-            ),
+            'Bu kategoride urun gorunmuyor',
+            style: textTheme.titleLarge?.copyWith(color: AppColors.textPrimary),
           ),
           const SizedBox(height: 8),
           Text(
-            'Farklı kategori seçebilir ya da yeni bir ürün ekleyebilirsin.',
+            'Farkli bir kategori secerek veya yeni bir urun ekleyerek devam edebilirsin.',
             textAlign: TextAlign.center,
             style: textTheme.bodyMedium?.copyWith(
               color: AppColors.textSecondary,
@@ -338,7 +362,7 @@ class _InventoryEmptyState extends StatelessWidget {
           OutlinedButton.icon(
             onPressed: onAddProduct,
             icon: const Icon(Icons.add_circle_outline_rounded),
-            label: const Text('Ürün Ekle'),
+            label: const Text('Urun Ekle'),
           ),
         ],
       ),
@@ -347,10 +371,7 @@ class _InventoryEmptyState extends StatelessWidget {
 }
 
 class _InventoryErrorState extends StatelessWidget {
-  const _InventoryErrorState({
-    required this.message,
-    required this.onRetry,
-  });
+  const _InventoryErrorState({required this.message, required this.onRetry});
 
   final String message;
   final Future<void> Function() onRetry;
@@ -371,7 +392,7 @@ class _InventoryErrorState extends StatelessWidget {
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [
+            children: <Widget>[
               const Icon(
                 Icons.error_outline_rounded,
                 color: Color(0xFFB94C3A),
@@ -379,7 +400,7 @@ class _InventoryErrorState extends StatelessWidget {
               ),
               const SizedBox(height: 14),
               Text(
-                'Envanter yüklenemedi',
+                'Envanter yuklenemedi',
                 style: textTheme.titleLarge?.copyWith(
                   color: AppColors.textPrimary,
                 ),

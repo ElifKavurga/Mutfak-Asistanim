@@ -58,7 +58,9 @@ class _PlanScreenState extends State<PlanScreen> {
     });
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Öğün plandan çıkarıldı.')));
+    ).showSnackBar(
+      const SnackBar(content: Text('Öğün planından çıkarıldı.')),
+    );
   }
 
   String _caloriesFor(_MealData? meal) => meal?.caloriesLabel ?? '0 kcal';
@@ -79,7 +81,7 @@ class _PlanScreenState extends State<PlanScreen> {
             const Icon(Icons.calendar_month_rounded, color: AppColors.primary),
             const SizedBox(width: 12),
             Text(
-              'Planla',
+              'Haftalık Plan',
               style: textTheme.titleLarge?.copyWith(
                 color: AppColors.primary,
                 fontWeight: FontWeight.w800,
@@ -93,7 +95,7 @@ class _PlanScreenState extends State<PlanScreen> {
             child: IconButton(
               onPressed: _openShoppingList,
               icon: const Icon(Icons.shopping_basket_rounded),
-              tooltip: 'Alışveriş listesi',
+              tooltip: 'Alışveriş listesini aç',
             ),
           ),
         ],
@@ -128,6 +130,13 @@ class _PlanScreenState extends State<PlanScreen> {
                           },
                         );
                       },
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Text(
+                    'Gunune uygun ogunleri sec, eksiklerini kolayca gor ve haftalik duzenini tek ekranda yonet.',
+                    style: textTheme.bodyLarge?.copyWith(
+                      color: AppColors.textSecondary,
                     ),
                   ),
                   const SizedBox(height: 28),
@@ -430,6 +439,14 @@ class _EmptyMealCard extends StatelessWidget {
                     color: AppColors.textSecondary,
                   ),
                 ),
+                const SizedBox(height: 6),
+                Text(
+                  'Bu öğün için tarif seçerek planını tamamlayabilirsin.',
+                  textAlign: TextAlign.center,
+                  style: textTheme.bodySmall?.copyWith(
+                    color: AppColors.outline,
+                  ),
+                ),
               ],
             ),
           ),
@@ -534,7 +551,7 @@ class _DinnerCard extends StatelessWidget {
                       onPressed: onOpenRecipe,
                       icon: const Icon(Icons.refresh_rounded),
                       color: Colors.white,
-                      tooltip: 'Öğünü yenile',
+                      tooltip: 'Tarifi görüntüle',
                     ),
                   ),
                 ],

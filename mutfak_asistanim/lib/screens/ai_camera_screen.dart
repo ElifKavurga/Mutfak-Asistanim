@@ -21,7 +21,7 @@ class AiCameraScreen extends StatefulWidget {
 class _AiCameraScreenState extends State<AiCameraScreen> {
   static const String _defaultTitle = 'Ürün Taramaya Hazır';
   static const String _defaultDescription =
-      'Barkod yerine ürünü ve varsa Son Kullanma Tarihi / TETT bilgisini kadraja al. Görseli aldıktan sonra ürün bilgilerini bir sonraki ekranda tamamlayabilirsin.';
+      'Ürünü ve varsa son kullanma tarihi bilgisini kadraja al. Görsel hazır olduğunda bir sonraki ekranda bilgileri kolayca tamamlayabilirsin.';
 
   final ImagePicker _imagePicker = ImagePicker();
 
@@ -38,7 +38,7 @@ class _AiCameraScreenState extends State<AiCameraScreen> {
   Future<void> _captureFromCamera() async {
     if (!_supportsDirectCameraCapture) {
       _showFeatureMessage(
-        'Bu platformda doğrudan kamera çekimi desteklenmiyor. Galeriden ürün görseli seçebilir veya bilgileri elle girebilirsiniz.',
+        'Bu cihazda doğrudan kamera kullanılamıyor. Galeriden ürün fotoğrafı seçebilir veya bilgileri elle girebilirsin.',
       );
       return;
     }
@@ -65,11 +65,11 @@ class _AiCameraScreenState extends State<AiCameraScreen> {
     }
 
     final pendingTitle = source == ImageSource.camera
-        ? 'Ürün Görseli Alınıyor'
-        : 'Ürün Görseli Seçiliyor';
+        ? 'Ürün Fotoğrafı Alınıyor'
+        : 'Ürün Fotoğrafı Seçiliyor';
     final pendingDescription = source == ImageSource.camera
-        ? 'Ürünü ve varsa tarih bilgisini net görünecek şekilde kadraja alın.'
-        : 'Galeriden ürünün ve tarih bilgisinin net göründüğü bir görsel seçin.';
+        ? 'Ürünü ve varsa tarih bilgisini net görünecek şekilde kadraja al.'
+        : 'Galeriden ürünün ve tarih bilgisinin net göründüğü bir fotoğraf seç.';
 
     setState(() {
       _isBusy = true;
@@ -128,10 +128,10 @@ class _AiCameraScreenState extends State<AiCameraScreen> {
             ? 'Ürün Görseli Hazır'
             : 'Galeriden Ürün Seçildi',
         description:
-            'Ürün adı ve varsa Son Kullanma Tarihi / TETT bilgisini eklemek için devam edin.',
+            'Ürün adını ve varsa son kullanma tarihi bilgisini eklemek için devam et.',
         sourceLabel: productSource == _ProductImageSource.camera
-            ? 'Kamera ile ürün görseli alındı'
-            : 'Galeriden ürün görseli seçildi',
+            ? 'Kamera ile ürün fotoğrafı alındı'
+            : 'Galeriden ürün fotoğrafı seçildi',
         imageBytes: bytes,
         imageName: file.name,
       );
@@ -167,17 +167,17 @@ class _AiCameraScreenState extends State<AiCameraScreen> {
     });
   }
 
-  void _openAddProductDraft() {
+  Future<void> _openAddProductDraft() async {
     final draft = _draft;
     if (draft == null) {
-      _showFeatureMessage('Önce bir ürün görseli alın ya da elle giriş yapın.');
+      _showFeatureMessage('Önce bir ürün görseli ekle ya da elle giriş yap.');
       return;
     }
 
     final analysis = draft.analysis;
 
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
+    final didSave = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
         builder: (_) => AddProductScreen(
           prefilledProductName: analysis?.productName ?? '',
           prefilledCategory: analysis?.category,
@@ -190,28 +190,35 @@ class _AiCameraScreenState extends State<AiCameraScreen> {
               : '${draft.sourceLabel} • ${analysis.confidenceLabel}',
           scanHelperText:
               analysis?.summaryDescription ??
-              'Ürün adını ve varsa Son Kullanma Tarihi / TETT bilgisini aşağıdan tamamlayın.',
+              'Ürün adını ve varsa son kullanma tarihini aşağıdan tamamla.',
           scannedImageBytes: draft.imageBytes,
-          analysisTitle: analysis == null ? null : 'Gorsel ve OCR analizi',
+          analysisTitle: analysis == null ? null : 'Görsel ve metin analizi',
           analysisConfidenceLabel: analysis?.confidenceLabel,
           analysisNotes: analysis?.insights ?? const <String>[],
         ),
       ),
     );
+    if (didSave == true && mounted) {
+      _resetDraft();
+      _showFeatureMessage('Urun envantere eklendi.');
+    }
   }
 
-  void _openManualEntry() {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
+  Future<void> _openManualEntry() async {
+    final didSave = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
         builder: (_) => const AddProductScreen(
           scanContextTitle: 'Manuel Ürün Girişi',
           scanContextValue:
-              'Ürün bilgisi doğrudan kullanıcı tarafından girilecek.',
+              'Ürün bilgilerini kendin girerek envantere ekleyebilirsin.',
           scanHelperText:
-              'Ürün adını ve varsa Son Kullanma Tarihi / TETT bilgisini elle girin.',
+              'Ürün adını ve varsa son kullanma tarihini elle gir.',
         ),
       ),
     );
+    if (didSave == true && mounted) {
+      _showFeatureMessage('Urun envantere eklendi.');
+    }
   }
 
   void _showFeatureMessage(String message) {
@@ -250,7 +257,7 @@ class _AiCameraScreenState extends State<AiCameraScreen> {
           IconButton(
             onPressed: () {
               _showFeatureMessage(
-                'Ürünün ön yüzünü ve varsa tarih bilgisini aynı kareye almaya çalışın. Barkod okumaya gerek yok.',
+                'Ürünün ön yüzünü ve varsa tarih bilgisini aynı karede göstermeye çalış. Barkod okutmana gerek yok.',
               );
             },
             icon: const Icon(Icons.info_outline_rounded),
@@ -259,7 +266,9 @@ class _AiCameraScreenState extends State<AiCameraScreen> {
             padding: const EdgeInsets.only(right: 10),
             child: IconButton(
               onPressed: () {
-                _showFeatureMessage('Profil ayarları daha sonra bağlanacak.');
+                _showFeatureMessage(
+                  'Profil ayarlari daha sonra bu ekrana eklenecek.',
+                );
               },
               icon: const Icon(Icons.account_circle_rounded),
             ),
@@ -306,7 +315,7 @@ class _AiCameraScreenState extends State<AiCameraScreen> {
                           ),
                           _StatusPill(
                             icon: Icons.event_available_rounded,
-                            label: 'TETT Desteği',
+                            label: 'Tarih Etiketi Desteği',
                           ),
                         ],
                       ),
@@ -322,7 +331,7 @@ class _AiCameraScreenState extends State<AiCameraScreen> {
                       ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 620),
                         child: Text(
-                          'Barkod yerine ürünün kendisini ve varsa Son Kullanma Tarihi / TETT bilgisini çek. Görsel hazır olduğunda ürün giriş ekranına geçip bilgileri tamamla.',
+                          'Barkod yerine ürünün kendisini ve varsa tarih bilgisini çek. Görsel hazır olduğunda ürün giriş ekranına geçip eksik bilgileri tamamla.',
                           style: textTheme.bodyLarge?.copyWith(
                             color: Colors.white.withValues(alpha: 0.82),
                           ),
@@ -650,7 +659,7 @@ class _ProductPreviewCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            'Ürün adı ile varsa son kullanma tarihi veya TETT bilgisinin görünmesine dikkat edin.',
+                            'Ürün adı ile varsa son kullanma tarihinin görünmesine dikkat et.',
                             textAlign: TextAlign.center,
                             style: textTheme.bodyMedium?.copyWith(
                               color: Colors.white.withValues(alpha: 0.82),

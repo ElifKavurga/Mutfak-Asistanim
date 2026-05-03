@@ -9,6 +9,7 @@ class CommonTextField extends StatelessWidget {
     required this.label,
     required this.hintText,
     required this.prefixIcon,
+    this.controller,
     this.suffix,
     this.obscureText = false,
     this.keyboardType,
@@ -17,6 +18,7 @@ class CommonTextField extends StatelessWidget {
   final String label;
   final String hintText;
   final IconData prefixIcon;
+  final TextEditingController? controller;
   final Widget? suffix;
   final bool obscureText;
   final TextInputType? keyboardType;
@@ -36,6 +38,7 @@ class CommonTextField extends StatelessWidget {
           ),
         ),
         TextField(
+          controller: controller,
           obscureText: obscureText,
           keyboardType: keyboardType,
           style: AppTextStyles.textTheme.bodyLarge?.copyWith(

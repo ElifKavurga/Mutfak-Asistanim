@@ -118,7 +118,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
           tooltip: 'Geri',
         ),
         title: Text(
-          'MutfakAsistanım',
+          'Alisveris Listesi',
           style: textTheme.titleLarge?.copyWith(
             color: AppColors.primary,
             fontWeight: FontWeight.w800,
@@ -181,7 +181,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Sık kullanılan malzemeler tükendiğinde ve tariflerde açık oluştuğunda bu liste otomatik doluyor.',
+          'Tariflerinde eksik kalan veya bitmek uzere olan urunler burada bir araya gelir.',
           style: textTheme.bodyLarge,
         ),
         const SizedBox(height: 24),
@@ -214,7 +214,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        '$_totalItemCount ürün',
+                        '$_totalItemCount urun',
                         style: textTheme.labelLarge?.copyWith(
                           color: AppColors.primaryDim,
                         ),
@@ -242,7 +242,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                   ),
                   icon: const Icon(Icons.done_all_rounded),
                   label: Text(
-                    'Tümünü Tamamla',
+                    'Tumunu Tamamla',
                     style: textTheme.labelLarge?.copyWith(
                       color: AppColors.onPrimary,
                     ),
@@ -298,7 +298,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Şefin İpucu',
+                      'Mutfak Ipucu',
                       style: textTheme.titleMedium?.copyWith(
                         color: AppColors.primary,
                         fontWeight: FontWeight.w800,
@@ -306,7 +306,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Soğan, sarımsak ve zeytinyağı gibi temel ürünleri listede ayrı tutmak, tarif eksiklerini daha hızlı kapatır.',
+                      'Sik kullandigin temel urunleri listede tutmak, hafta ici alisverisini daha hizli tamamlamani saglar.',
                       style: textTheme.bodyMedium,
                     ),
                   ],
@@ -400,14 +400,14 @@ class _ShoppingEmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(
-            'Şu an eksik malzeme görünmüyor',
+            'Su anda eksik urun gorunmuyor',
             style: textTheme.titleLarge?.copyWith(
               color: AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Sık kullanılan ürünler tükenirse veya tariflerde açık oluşursa liste burada belirecek.',
+            'Yeni eksikler olustugunda alisveris listesi burada otomatik olarak guncellenecek.',
             textAlign: TextAlign.center,
             style: textTheme.bodyMedium?.copyWith(
               color: AppColors.textSecondary,
@@ -452,7 +452,7 @@ class _ShoppingErrorState extends StatelessWidget {
               ),
               const SizedBox(height: 14),
               Text(
-                'Alışveriş listesi yüklenemedi',
+                'Alisveris listesi acilamadi',
                 style: textTheme.titleLarge?.copyWith(
                   color: AppColors.textPrimary,
                 ),

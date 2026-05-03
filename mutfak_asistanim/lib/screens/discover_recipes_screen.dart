@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../services/backend_api_service.dart';
 import '../services/mock_kitchen_data_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/dashboard_bottom_nav.dart';
@@ -46,16 +47,17 @@ class _DiscoverRecipesScreenState extends State<DiscoverRecipesScreen> {
     });
 
     try {
-      final data = await MockKitchenDataService.instance.loadRecipeDiscoveryData();
+      final data = await BackendApiService.instance.loadRecipeDiscoveryData();
       if (!mounted) {
         return;
       }
 
       setState(() {
         _data = data;
-        _selectedFilter = data.categories.isNotEmpty
-            ? (_selectedFilter ?? data.categories.first)
-            : null;
+        final previousFilter = _selectedFilter;
+        _selectedFilter = data.categories.contains(previousFilter)
+            ? previousFilter
+            : (data.categories.isNotEmpty ? data.categories.first : null);
         _isLoading = false;
       });
     } catch (error) {
@@ -84,26 +86,30 @@ class _DiscoverRecipesScreenState extends State<DiscoverRecipesScreen> {
       return const <RecipeCardData>[];
     }
 
-    final selectedFilter = _selectedFilter ?? 'Tümü';
+    final selectedFilter = _selectedFilter ?? BackendApiService.allFilterLabel;
     final query = _searchController.text.trim().toLowerCase();
 
-    return data.recipes.where((recipe) {
-      final matchesFilter = selectedFilter == 'Tümü' || recipe.tag == selectedFilter;
-      if (!matchesFilter) {
-        return false;
-      }
+    return data.recipes
+        .where((recipe) {
+          final matchesFilter =
+              selectedFilter == BackendApiService.allFilterLabel ||
+              recipe.tag == selectedFilter;
+          if (!matchesFilter) {
+            return false;
+          }
 
-      if (query.isEmpty) {
-        return true;
-      }
+          if (query.isEmpty) {
+            return true;
+          }
 
-      final haystack = <String>[
-        recipe.title,
-        recipe.tag,
-        ...recipe.searchKeywords,
-      ].join(' ').toLowerCase();
-      return haystack.contains(query);
-    }).toList(growable: false);
+          final haystack = <String>[
+            recipe.title,
+            recipe.tag,
+            ...recipe.searchKeywords,
+          ].join(' ').toLowerCase();
+          return haystack.contains(query);
+        })
+        .toList(growable: false);
   }
 
   @override
@@ -119,14 +125,14 @@ class _DiscoverRecipesScreenState extends State<DiscoverRecipesScreen> {
           icon: const Icon(Icons.menu_rounded),
         ),
         title: Text(
-          'MutfakAsistanım',
+          'MutfakAsistanim',
           style: textTheme.titleLarge?.copyWith(
             color: AppColors.primary,
             fontWeight: FontWeight.w800,
           ),
         ),
         centerTitle: true,
-        actions: [
+        actions: <Widget>[
           Padding(
             padding: const EdgeInsets.only(right: 10),
             child: IconButton(
@@ -162,36 +168,33 @@ class _DiscoverRecipesScreenState extends State<DiscoverRecipesScreen> {
     if (_isLoading) {
       return const Padding(
         padding: EdgeInsets.only(top: 120),
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
+        child: Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_loadError != null) {
-      return _RecipesErrorState(
-        message: _loadError!,
-        onRetry: _loadData,
-      );
+      return _RecipesErrorState(message: _loadError!, onRetry: _loadData);
     }
 
     final data = _data;
     if (data == null) {
       return _RecipesErrorState(
-        message: 'Tarif verisi yüklenemedi.',
+        message: 'Tarifler su anda yuklenemedi.',
         onRetry: _loadData,
       );
     }
 
     final recipes = _visibleRecipes;
+    final selectedFilter = _selectedFilter ?? data.categories.first;
+    final hasSearchQuery = _searchController.text.trim().isNotEmpty;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+      children: <Widget>[
         _SearchAndFilters(
           controller: _searchController,
           categories: data.categories,
-          selectedFilter: _selectedFilter ?? data.categories.first,
+          selectedFilter: selectedFilter,
           onFilterSelected: (filter) {
             setState(() {
               _selectedFilter = filter;
@@ -200,10 +203,8 @@ class _DiscoverRecipesScreenState extends State<DiscoverRecipesScreen> {
         ),
         const SizedBox(height: 36),
         Text(
-          'Günün İlhamı',
-          style: textTheme.headlineMedium?.copyWith(
-            color: AppColors.primary,
-          ),
+          'Bugun Ne Pisirsem?',
+          style: textTheme.headlineMedium?.copyWith(color: AppColors.primary),
         ),
         const SizedBox(height: 18),
         FeaturedBentoCards(
@@ -214,10 +215,17 @@ class _DiscoverRecipesScreenState extends State<DiscoverRecipesScreen> {
         _DiscoveryHeader(
           textTheme: textTheme,
           totalRecipeCount: recipes.length,
+          onResetFilter: () {
+            setState(() {
+              _selectedFilter = BackendApiService.allFilterLabel;
+            });
+          },
         ),
         const SizedBox(height: 22),
         if (recipes.isEmpty)
-          const _RecipesEmptyState()
+          _RecipesEmptyState(
+            hasSearchQuery: hasSearchQuery,
+          )
         else
           LayoutBuilder(
             builder: (context, constraints) {
@@ -227,11 +235,11 @@ class _DiscoverRecipesScreenState extends State<DiscoverRecipesScreen> {
               final crossAxisCount = width >= 1100
                   ? 4
                   : width >= 700
-                      ? 2
-                      : 1;
+                  ? 2
+                  : 1;
               final cardWidth =
                   (width - ((crossAxisCount - 1) * crossAxisSpacing)) /
-                      crossAxisCount;
+                  crossAxisCount;
               final imageHeight = cardWidth * 1.25;
               final mainAxisExtent = imageHeight + 92;
 
@@ -275,7 +283,7 @@ class _SearchAndFilters extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+      children: <Widget>[
         TextField(
           controller: controller,
           decoration: const InputDecoration(
@@ -287,16 +295,18 @@ class _SearchAndFilters extends StatelessWidget {
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
-            children: categories.map((filter) {
-              return Padding(
-                padding: const EdgeInsets.only(right: 10),
-                child: RecipeFilterChip(
-                  label: filter,
-                  selected: filter == selectedFilter,
-                  onTap: () => onFilterSelected(filter),
-                ),
-              );
-            }).toList(growable: false),
+            children: categories
+                .map((filter) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 10),
+                    child: RecipeFilterChip(
+                      label: filter,
+                      selected: filter == selectedFilter,
+                      onTap: () => onFilterSelected(filter),
+                    ),
+                  );
+                })
+                .toList(growable: false),
           ),
         ),
       ],
@@ -308,10 +318,12 @@ class _DiscoveryHeader extends StatelessWidget {
   const _DiscoveryHeader({
     required this.textTheme,
     required this.totalRecipeCount,
+    required this.onResetFilter,
   });
 
   final TextTheme textTheme;
   final int totalRecipeCount;
+  final VoidCallback onResetFilter;
 
   @override
   Widget build(BuildContext context) {
@@ -320,27 +332,27 @@ class _DiscoveryHeader extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.end,
       runSpacing: 12,
       spacing: 12,
-      children: [
+      children: <Widget>[
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Text(
-              'Yeni Tarifler',
+              'Tarifler',
               style: textTheme.headlineMedium?.copyWith(
                 color: AppColors.primary,
               ),
             ),
             const SizedBox(height: 6),
             Text(
-              '$totalRecipeCount tarif, eldeki malzemelere göre sıralandı',
+              '$totalRecipeCount tarif senin icin listelendi',
               style: textTheme.bodyLarge,
             ),
           ],
         ),
         TextButton(
-          onPressed: () {},
+          onPressed: onResetFilter,
           child: Text(
-            'Öncelikli Kullan',
+            'Onerilenleri Gor',
             style: textTheme.labelLarge?.copyWith(color: AppColors.primary),
           ),
         ),
@@ -363,7 +375,7 @@ class _SeasonalHighlightSection extends StatelessWidget {
         final stacked = constraints.maxWidth < 920;
         final textContent = Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Text(
               data.eyebrow,
               style: textTheme.labelSmall?.copyWith(
@@ -417,7 +429,7 @@ class _SeasonalHighlightSection extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
+              colors: <Color>[
                 AppColors.secondaryContainer.withValues(alpha: 0.88),
                 AppColors.surfaceContainerLow,
               ],
@@ -426,7 +438,7 @@ class _SeasonalHighlightSection extends StatelessWidget {
           child: stacked
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     textContent,
                     const SizedBox(height: 24),
                     const _SeasonalVisual(),
@@ -434,7 +446,7 @@ class _SeasonalHighlightSection extends StatelessWidget {
                 )
               : Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
+                  children: <Widget>[
                     Expanded(flex: 6, child: textContent),
                     const SizedBox(width: 24),
                     const Expanded(flex: 5, child: _SeasonalVisual()),
@@ -459,9 +471,9 @@ class _SeasonalVisual extends StatelessWidget {
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF90A86D), Color(0xFF4D653B)],
+            colors: <Color>[Color(0xFF90A86D), Color(0xFF4D653B)],
           ),
-          boxShadow: const [
+          boxShadow: const <BoxShadow>[
             BoxShadow(
               color: AppColors.shadow,
               blurRadius: 28,
@@ -470,7 +482,7 @@ class _SeasonalVisual extends StatelessWidget {
           ],
         ),
         child: Stack(
-          children: [
+          children: <Widget>[
             Positioned(
               left: -18,
               bottom: -20,
@@ -507,11 +519,7 @@ class _SeasonalVisual extends StatelessWidget {
               ),
             ),
             const Center(
-              child: Icon(
-                Icons.spa_rounded,
-                size: 92,
-                color: Colors.white,
-              ),
+              child: Icon(Icons.spa_rounded, size: 92, color: Colors.white),
             ),
           ],
         ),
@@ -521,11 +529,19 @@ class _SeasonalVisual extends StatelessWidget {
 }
 
 class _RecipesEmptyState extends StatelessWidget {
-  const _RecipesEmptyState();
+  const _RecipesEmptyState({required this.hasSearchQuery});
+
+  final bool hasSearchQuery;
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final title = hasSearchQuery
+        ? 'Aramana uygun tarif bulunamadi'
+        : 'Bu filtrede gosterilecek tarif bulunamadi';
+    final description = hasSearchQuery
+        ? 'Aramani biraz daha genisletebilir veya farkli bir filtre deneyebilirsin.'
+        : 'Farkli bir kategori secerek yeni tarifler inceleyebilirsin.';
 
     return Container(
       width: double.infinity,
@@ -535,7 +551,7 @@ class _RecipesEmptyState extends StatelessWidget {
         borderRadius: BorderRadius.circular(28),
       ),
       child: Column(
-        children: [
+        children: <Widget>[
           const Icon(
             Icons.search_off_rounded,
             color: AppColors.primary,
@@ -543,14 +559,12 @@ class _RecipesEmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(
-            'Aramana uygun tarif bulunamadı',
-            style: textTheme.titleLarge?.copyWith(
-              color: AppColors.textPrimary,
-            ),
+            title,
+            style: textTheme.titleLarge?.copyWith(color: AppColors.textPrimary),
           ),
           const SizedBox(height: 8),
           Text(
-            'Farklı bir malzeme adı veya kategori deneyebilirsin.',
+            description,
             textAlign: TextAlign.center,
             style: textTheme.bodyMedium?.copyWith(
               color: AppColors.textSecondary,
@@ -563,10 +577,7 @@ class _RecipesEmptyState extends StatelessWidget {
 }
 
 class _RecipesErrorState extends StatelessWidget {
-  const _RecipesErrorState({
-    required this.message,
-    required this.onRetry,
-  });
+  const _RecipesErrorState({required this.message, required this.onRetry});
 
   final String message;
   final Future<void> Function() onRetry;
@@ -587,7 +598,7 @@ class _RecipesErrorState extends StatelessWidget {
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [
+            children: <Widget>[
               const Icon(
                 Icons.error_outline_rounded,
                 color: Color(0xFFB94C3A),
@@ -595,7 +606,7 @@ class _RecipesErrorState extends StatelessWidget {
               ),
               const SizedBox(height: 14),
               Text(
-                'Tarifler yüklenemedi',
+                'Tarifler yuklenemedi',
                 style: textTheme.titleLarge?.copyWith(
                   color: AppColors.textPrimary,
                 ),

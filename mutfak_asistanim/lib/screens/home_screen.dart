@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../services/backend_api_service.dart';
 import '../services/mock_kitchen_data_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/action_tile.dart';
@@ -24,15 +25,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  static const List<_QuickActionData> _actions = [
-    _QuickActionData(label: 'Yeni Ürün Ekle', icon: Icons.add_circle_rounded),
-    _QuickActionData(label: 'Buzdolabım', icon: Icons.inventory_2_rounded),
+  static const List<_QuickActionData> _actions = <_QuickActionData>[
+    _QuickActionData(label: 'Yeni Urun Ekle', icon: Icons.add_circle_rounded),
+    _QuickActionData(label: 'Buzdolabim', icon: Icons.inventory_2_rounded),
     _QuickActionData(
-      label: 'Ürün Tara',
+      label: 'Urun Tara',
       icon: Icons.center_focus_strong_rounded,
     ),
     _QuickActionData(
-      label: 'Alışveriş Listesi',
+      label: 'Alisveris Listesi',
       icon: Icons.shopping_basket_rounded,
     ),
   ];
@@ -54,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     try {
-      final data = await MockKitchenDataService.instance.loadHomeData();
+      final data = await BackendApiService.instance.loadHomeData();
       if (!mounted) {
         return;
       }
@@ -75,16 +76,22 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _openAddProduct(BuildContext context) {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute<void>(builder: (_) => const AddProductScreen()));
+  Future<void> _openAddProduct(BuildContext context) async {
+    final didSave = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(builder: (_) => const AddProductScreen()),
+    );
+    if (didSave == true && mounted) {
+      await _loadData();
+    }
   }
 
-  void _openAiCamera(BuildContext context) {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute<void>(builder: (_) => const AiCameraScreen()));
+  Future<void> _openAiCamera(BuildContext context) async {
+    final didSave = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(builder: (_) => const AiCameraScreen()),
+    );
+    if (didSave == true && mounted) {
+      await _loadData();
+    }
   }
 
   void _openSuggestedRecipe() {
@@ -100,20 +107,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _handleActionTap(BuildContext context, _QuickActionData action) {
-    if (action.label == 'Yeni Ürün Ekle') {
-      _openAddProduct(context);
-      return;
-    }
-    if (action.label == 'Buzdolabım') {
-      Navigator.of(context).pushNamed(InventoryScreen.routeName);
-      return;
-    }
-    if (action.label == 'Ürün Tara') {
-      _openAiCamera(context);
-      return;
-    }
-    if (action.label == 'Alışveriş Listesi') {
-      Navigator.of(context).pushNamed(ShoppingListScreen.routeName);
+    switch (action.label) {
+      case 'Yeni Urun Ekle':
+        _openAddProduct(context);
+        return;
+      case 'Buzdolabim':
+        Navigator.of(context).pushNamed(InventoryScreen.routeName);
+        return;
+      case 'Urun Tara':
+        _openAiCamera(context);
+        return;
+      case 'Alisveris Listesi':
+        Navigator.of(context).pushNamed(ShoppingListScreen.routeName);
+        return;
     }
   }
 
@@ -142,14 +148,14 @@ class _HomeScreenState extends State<HomeScreen> {
           icon: const Icon(Icons.menu_rounded),
         ),
         title: Text(
-          'MutfakAsistanım',
+          'MutfakAsistanim',
           style: textTheme.titleLarge?.copyWith(
             color: AppColors.primary,
             fontWeight: FontWeight.w800,
           ),
         ),
         centerTitle: true,
-        actions: [
+        actions: <Widget>[
           Padding(
             padding: const EdgeInsets.only(right: 2),
             child: IconButton(
@@ -187,21 +193,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 constraints: const BoxConstraints(maxWidth: 1240),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     _WelcomeSection(
                       textTheme: textTheme,
                       displayName: homeData?.displayName ?? '',
                       description:
                           homeData?.description ??
                           (_isLoading
-                              ? 'Mutfak verileri hazırlanıyor...'
-                              : 'Tarama ve envanter verileri burada özetlenecek.'),
-                      weeklySavingsLabel: homeData?.weeklySavingsLabel ?? '₺0',
+                              ? 'Mutfagin hazirlaniyor...'
+                              : 'Mutfak ozetin burada gorunecek.'),
+                      summaryValue: homeData?.weeklySavingsLabel ?? '0',
                     ),
                     const SizedBox(height: 32),
                     _SectionHeader(
-                      title: 'Yakında Bozulacaklar',
-                      actionLabel: 'Tümünü Gör',
+                      title: 'Yakinda Bozulacaklar',
+                      actionLabel: 'Tumunu Gor',
                       onTap: () {
                         Navigator.of(
                           context,
@@ -222,9 +228,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
                         final suggestionSection = Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
+                          children: <Widget>[
                             Text(
-                              'Değerlendirme Önerileri',
+                              'Tarif Onerisi',
                               style: textTheme.headlineMedium?.copyWith(
                                 color: AppColors.primary,
                               ),
@@ -235,9 +241,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                         final actionsSection = Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
+                          children: <Widget>[
                             Text(
-                              'Hızlı Aksiyonlar',
+                              'Hizli Aksiyonlar',
                               style: textTheme.headlineMedium?.copyWith(
                                 color: AppColors.primary,
                               ),
@@ -260,7 +266,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         if (stacked) {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
+                            children: <Widget>[
                               suggestionSection,
                               const SizedBox(height: 28),
                               actionsSection,
@@ -270,7 +276,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                         return Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
+                          children: <Widget>[
                             Expanded(flex: 2, child: suggestionSection),
                             const SizedBox(width: 24),
                             Expanded(child: actionsSection),
@@ -291,7 +297,7 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: Container(
         decoration: const BoxDecoration(
           shape: BoxShape.circle,
-          boxShadow: [
+          boxShadow: <BoxShadow>[
             BoxShadow(
               color: AppColors.shadow,
               blurRadius: 28,
@@ -319,15 +325,16 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_isLoading) {
       return const _HomeMessageCard(
         icon: Icons.hourglass_top_rounded,
-        title: 'Ürünler hazırlanıyor',
-        description: 'Yakın tarihli ürünler birazdan burada listelenecek.',
+        title: 'Urunler yukleniyor',
+        description:
+            'Son kullanma tarihi yaklasan urunleri burada gorebilirsin.',
       );
     }
 
     if (_loadError != null) {
       return _HomeMessageCard(
         icon: Icons.warning_amber_rounded,
-        title: 'Ürün verisi yüklenemedi',
+        title: 'Urun verisi yuklenemedi',
         description: _loadError!,
         actionLabel: 'Tekrar Dene',
         onAction: _loadData,
@@ -337,9 +344,9 @@ class _HomeScreenState extends State<HomeScreen> {
     if (products.isEmpty) {
       return const _HomeMessageCard(
         icon: Icons.inventory_2_outlined,
-        title: 'Henüz ürün yok',
+        title: 'Henuz urun eklenmedi',
         description:
-            'Yeni ürün eklediğinde bu alan bozulmaya yakın ürünleri öne çıkaracak.',
+            'Ilk urunlerini eklediginde yakinda tuketilmesi gerekenler burada gorunur.',
       );
     }
 
@@ -363,16 +370,16 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_isLoading) {
       return const _HomeMessageCard(
         icon: Icons.auto_awesome_rounded,
-        title: 'Tarif önerisi hazırlanıyor',
-        description: 'Eldeki malzemeler ve son tarih bilgisi taranıyor.',
+        title: 'Tarif onerileri hazirlaniyor',
+        description: 'Envanterine uygun tarifler senin icin seciliyor.',
       );
     }
 
     if (_loadError != null) {
       return _HomeMessageCard(
         icon: Icons.refresh_rounded,
-        title: 'Öneri getirilemedi',
-        description: 'Tarif önerisini yenilemek için tekrar deneyin.',
+        title: 'Tarif onerileri gosterilemiyor',
+        description: 'Su anda tarif onerileri getirilemedi. Lutfen tekrar dene.',
         actionLabel: 'Yenile',
         onAction: _loadData,
       );
@@ -382,9 +389,9 @@ class _HomeScreenState extends State<HomeScreen> {
     if (suggestion == null) {
       return const _HomeMessageCard(
         icon: Icons.menu_book_rounded,
-        title: 'Tarif önerisi yok',
+        title: 'Henuz tarif onerisi yok',
         description:
-            'Envantere ürün ekledikçe uygun tarifleri burada göreceksin.',
+            'Envanterine urun eklendikce sana uygun tarif onerileri burada gorunur.',
       );
     }
 
@@ -403,13 +410,13 @@ class _WelcomeSection extends StatelessWidget {
     required this.textTheme,
     required this.displayName,
     required this.description,
-    required this.weeklySavingsLabel,
+    required this.summaryValue,
   });
 
   final TextTheme textTheme;
   final String displayName;
   final String description;
-  final String weeklySavingsLabel;
+  final String summaryValue;
 
   @override
   Widget build(BuildContext context) {
@@ -418,9 +425,9 @@ class _WelcomeSection extends StatelessWidget {
         final stacked = constraints.maxWidth < 840;
         final intro = Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Text(
-              displayName.isEmpty ? 'Hoş Geldin' : displayName,
+              displayName.isEmpty ? 'Hos Geldin' : displayName,
               style: textTheme.displayMedium?.copyWith(
                 color: AppColors.primary,
               ),
@@ -432,7 +439,7 @@ class _WelcomeSection extends StatelessWidget {
             ),
           ],
         );
-        final savingsCard = Align(
+        final summaryCard = Align(
           alignment: stacked ? Alignment.centerLeft : Alignment.centerRight,
           child: Container(
             constraints: const BoxConstraints(maxWidth: 320),
@@ -442,7 +449,7 @@ class _WelcomeSection extends StatelessWidget {
               borderRadius: BorderRadius.circular(24),
             ),
             child: Row(
-              children: [
+              children: <Widget>[
                 Container(
                   width: 52,
                   height: 52,
@@ -451,23 +458,23 @@ class _WelcomeSection extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
-                    Icons.eco_rounded,
+                    Icons.inventory_2_rounded,
                     color: AppColors.primary,
                   ),
                 ),
                 const SizedBox(width: 14),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Text(
-                      'Haftalık Tasarruf',
+                      'Toplam Urun',
                       style: textTheme.labelMedium?.copyWith(
                         color: AppColors.textSecondary,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      weeklySavingsLabel,
+                      summaryValue,
                       style: textTheme.headlineMedium?.copyWith(
                         color: AppColors.primary,
                       ),
@@ -482,16 +489,16 @@ class _WelcomeSection extends StatelessWidget {
         if (stacked) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [intro, const SizedBox(height: 18), savingsCard],
+            children: <Widget>[intro, const SizedBox(height: 18), summaryCard],
           );
         }
 
         return Row(
           crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
+          children: <Widget>[
             Expanded(flex: 8, child: intro),
             const SizedBox(width: 24),
-            Expanded(flex: 4, child: savingsCard),
+            Expanded(flex: 4, child: summaryCard),
           ],
         );
       },
@@ -515,7 +522,7 @@ class _SectionHeader extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Row(
-      children: [
+      children: <Widget>[
         Expanded(
           child: Text(
             title,
@@ -559,7 +566,7 @@ class _HomeMessageCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(28),
-        boxShadow: const [
+        boxShadow: const <BoxShadow>[
           BoxShadow(
             color: AppColors.shadow,
             blurRadius: 20,
@@ -569,7 +576,7 @@ class _HomeMessageCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Container(
             width: 52,
             height: 52,
@@ -591,7 +598,7 @@ class _HomeMessageCard extends StatelessWidget {
               color: AppColors.textSecondary,
             ),
           ),
-          if (actionLabel != null && onAction != null) ...[
+          if (actionLabel != null && onAction != null) ...<Widget>[
             const SizedBox(height: 18),
             FilledButton(
               onPressed: onAction,

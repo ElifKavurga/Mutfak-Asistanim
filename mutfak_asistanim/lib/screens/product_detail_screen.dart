@@ -299,7 +299,7 @@ class _DetailsPanel extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     _InfoCard(
-                      label: 'SKT Durumu',
+                      label: 'Son Kullanma Durumu',
                       value: product.expiryLabel,
                       icon: Icons.warning_amber_rounded,
                       accentColor: expiryAccent,
@@ -321,7 +321,7 @@ class _DetailsPanel extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: _InfoCard(
-                      label: 'SKT Durumu',
+                      label: 'Son Kullanma Durumu',
                       value: product.expiryLabel,
                       icon: Icons.warning_amber_rounded,
                       accentColor: expiryAccent,
@@ -334,7 +334,7 @@ class _DetailsPanel extends StatelessWidget {
           ),
           const SizedBox(height: 22),
           Text(
-            'Tazelik Oranı',
+            'Tazelik Durumu',
             style: textTheme.titleMedium?.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w700,
@@ -382,7 +382,7 @@ class _DetailsPanel extends StatelessWidget {
           ),
           const SizedBox(height: 28),
           Text(
-            'Durum Güncelle',
+            'Ürünü Güncelle',
             style: textTheme.labelMedium?.copyWith(
               color: AppColors.outline,
               letterSpacing: 1.2,
@@ -391,7 +391,7 @@ class _DetailsPanel extends StatelessWidget {
           const SizedBox(height: 12),
           const _PrimaryActionButton(
             title: 'Tüketildi',
-            subtitle: 'Envanterden düşer, istatistiklere eklenir',
+            subtitle: 'Envanterden düşer ve kullanıldı olarak işaretlenir',
             icon: Icons.restaurant_rounded,
             backgroundColor: AppColors.primary,
             foregroundColor: AppColors.onPrimary,
@@ -400,7 +400,7 @@ class _DetailsPanel extends StatelessWidget {
           const SizedBox(height: 12),
           const _PrimaryActionButton(
             title: 'Çöpe Gitti',
-            subtitle: 'Atık raporuna kaydedilir',
+            subtitle: 'Atık kaydına eklenir',
             icon: Icons.delete_outline_rounded,
             backgroundColor: Color(0xFFF9ECA6),
             foregroundColor: Color(0xFF5C541D),
@@ -424,7 +424,7 @@ class _DetailsPanel extends StatelessWidget {
               TextButton.icon(
                 onPressed: () {},
                 icon: const Icon(Icons.history_rounded),
-                label: const Text('Geçmiş'),
+                label: const Text('Geçmişi Gör'),
                 style: TextButton.styleFrom(
                   foregroundColor: AppColors.outline,
                   textStyle: textTheme.labelLarge?.copyWith(
@@ -471,14 +471,14 @@ class _ChefTipCard extends StatelessWidget {
           ),
           const SizedBox(height: 18),
           Text(
-            'Şefin İpucu',
+            'Saklama İpucu',
             style: textTheme.headlineSmall?.copyWith(
               color: AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 10),
           Text(
-            'Ürüne özel ipuçları backend entegrasyonu sonrasında burada gösterilecek.',
+            'Bu ürünü daha uzun süre taze tutmak ve doğru zamanda kullanmak için öneriler burada görünür.',
             style: textTheme.bodyLarge?.copyWith(
               color: AppColors.textSecondary,
               height: 1.5,
@@ -507,21 +507,52 @@ class _RecipeSuggestionsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Bu Malzeme ile Ne Pişirilir?',
+          'Bu Ürünle Neler Yapabilirsin?',
           style: textTheme.headlineMedium?.copyWith(
             color: AppColors.textPrimary,
           ),
         ),
         const SizedBox(height: 8),
         Text(
-          'İlgili tarifler backend verisi geldiğinde burada listelenecek.',
+          'Bu ürünü değerlendirebileceğin tarif önerileri burada listelenir.',
           style: textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
         ),
         const SizedBox(height: 20),
         LayoutBuilder(
           builder: (context, constraints) {
             if (recipes.isEmpty) {
-              return const SizedBox.shrink();
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(28),
+                ),
+                child: Column(
+                  children: [
+                    const Icon(
+                      Icons.menu_book_rounded,
+                      color: AppColors.primary,
+                      size: 40,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Henüz öneri yok',
+                      style: textTheme.titleLarge?.copyWith(
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Bu ürüne uygun tarifler eklendiğinde burada görebilirsin.',
+                      textAlign: TextAlign.center,
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              );
             }
 
             if (constraints.maxWidth < 760) {
@@ -648,7 +679,7 @@ class _HeroPlaceholder extends StatelessWidget {
                 border: Border.all(color: Colors.white.withValues(alpha: 0.22)),
               ),
               child: Text(
-                'Görsel backend üzerinden gelecek',
+                'Ürün görseli eklendiğinde burada görünecek',
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w700,

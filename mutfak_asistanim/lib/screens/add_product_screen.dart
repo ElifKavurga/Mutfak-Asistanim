@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
+import '../services/backend_api_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/category_dropdown.dart';
 import '../widgets/common_button.dart';
@@ -17,14 +18,14 @@ class AddProductScreen extends StatefulWidget {
     this.prefilledDate = '',
     this.initialDateType = 'Son Kullanma Tarihi',
     this.detectedBarcode,
-    this.quickSuggestions = const [],
+    this.quickSuggestions = const <String>[],
     this.scanContextTitle,
     this.scanContextValue,
     this.scanHelperText,
     this.scannedImageBytes,
     this.analysisTitle,
     this.analysisConfidenceLabel,
-    this.analysisNotes = const [],
+    this.analysisNotes = const <String>[],
   });
 
   static const String routeName = '/add-product';
@@ -51,12 +52,17 @@ class _AddProductScreenState extends State<AddProductScreen> {
   late final List<String> _categories;
   late final List<String> _quickSuggestions;
   late final List<String> _dateTypes;
+  late final List<String> _unitLabels;
 
   final TextEditingController _productNameController = TextEditingController();
+  final TextEditingController _barcodeController = TextEditingController();
+  final TextEditingController _quantityController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
 
   String? _selectedCategory;
   String _selectedDateType = 'Son Kullanma Tarihi';
+  String _selectedUnit = 'Adet';
+  bool _isSubmitting = false;
 
   bool get _hasScanContext {
     return widget.detectedBarcode != null ||
@@ -82,7 +88,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       return 'Taranan Barkod';
     }
 
-    return 'Taranan Ürün';
+    return 'Taranan Urun';
   }
 
   String get _scanValue {
@@ -91,7 +97,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       return widget.scanContextValue!.trim();
     }
 
-    return widget.detectedBarcode?.trim() ?? 'Görsel kayda hazır.';
+    return widget.detectedBarcode?.trim() ?? 'Gorsel kayda hazir.';
   }
 
   String get _scanHelperText {
@@ -101,36 +107,24 @@ class _AddProductScreenState extends State<AddProductScreen> {
     }
 
     if (widget.detectedBarcode != null) {
-      return 'Ürün adı otomatik geldiyse kontrol edin, gelmediyse elle tamamlayabilirsiniz.';
+      return 'Barkod geldiyse kontrol edin, gelmediyse alan bos birakilabilir.';
     }
 
-    return 'Ürün adını ve varsa Son Kullanma Tarihi / TETT bilgisini aşağıdan tamamlayın.';
+    return 'Urun adini, miktarini ve son kullanma tarihini tamamlayin.';
   }
 
   @override
   void initState() {
     super.initState();
 
-    _categories = <String>[
-      'Diğer',
-      'Süt Ürünleri',
-      'İçecekler',
-      'Atıştırmalık',
-      'Meyve & Sebze',
-      'Et & Tavuk',
-      'Dondurulmuş',
-      'Kuru Gıda',
-      'Baharat & Sos',
-      'Konserve',
-    ];
+    _categories = List<String>.of(BackendApiService.supportedCategoryLabels);
+    _unitLabels = List<String>.of(BackendApiService.supportedUnitLabels);
+    _dateTypes = <String>['Son Kullanma Tarihi', 'TETT', 'Belirtilmemis'];
 
-    _dateTypes = <String>['Son Kullanma Tarihi', 'TETT', 'Belirtilmemiş'];
-
-    final prefilledCategory = widget.prefilledCategory?.trim();
-    if (prefilledCategory != null &&
-        prefilledCategory.isNotEmpty &&
-        !_categories.contains(prefilledCategory)) {
-      _categories.insert(0, prefilledCategory);
+    final normalizedCategory = BackendApiService.instance
+        .normalizeCategoryLabel(widget.prefilledCategory);
+    if (!_categories.contains(normalizedCategory)) {
+      _categories.insert(0, normalizedCategory);
     }
 
     _quickSuggestions = widget.quickSuggestions
@@ -138,17 +132,23 @@ class _AddProductScreenState extends State<AddProductScreen> {
         .where((suggestion) => suggestion.isNotEmpty)
         .toList(growable: false);
 
-    _selectedCategory = prefilledCategory ?? _categories.first;
+    _selectedCategory = normalizedCategory;
     _selectedDateType = _dateTypes.contains(widget.initialDateType)
         ? widget.initialDateType
         : _dateTypes.first;
+    _selectedUnit = _unitLabels.first;
+
     _productNameController.text = widget.prefilledProductName.trim();
-    _dateController.text = widget.prefilledDate.trim();
+    _barcodeController.text = widget.detectedBarcode?.trim() ?? '';
+    _quantityController.text = '1';
+    _dateController.text = _normalizeDateText(widget.prefilledDate.trim());
   }
 
   @override
   void dispose() {
     _productNameController.dispose();
+    _barcodeController.dispose();
+    _quantityController.dispose();
     _dateController.dispose();
     super.dispose();
   }
@@ -179,26 +179,75 @@ class _AddProductScreenState extends State<AddProductScreen> {
     });
   }
 
-  void _submitDraft() {
+  Future<void> _submitProduct() async {
     final productName = _productNameController.text.trim();
-    final dateValue = _dateController.text.trim();
-    final dateType = _selectedDateType == 'Belirtilmemiş'
-        ? 'Tarih'
-        : _selectedDateType;
+    final barcodeInput = _barcodeController.text.trim();
+    final quantityInput = _quantityController.text.trim().replaceAll(',', '.');
+    final dateInput = _dateController.text.trim();
+    final category = _selectedCategory;
 
     if (productName.isEmpty) {
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          const SnackBar(content: Text('Ürün adını girmeniz gerekiyor.')),
-        );
+      _showMessage('Urun adini girmeniz gerekiyor.');
+      return;
+    }
+    if (category == null || category.isEmpty) {
+      _showMessage('Kategori secmeniz gerekiyor.');
+      return;
+    }
+    if (quantityInput.isEmpty) {
+      _showMessage('Miktar bilgisi gerekiyor.');
       return;
     }
 
-    final message = dateValue.isEmpty
-        ? '$productName kayda hazır.'
-        : '$productName kayda hazır. $dateType: $dateValue';
+    final quantity = num.tryParse(quantityInput);
+    if (quantity == null || quantity <= 0) {
+      _showMessage('Lutfen gecerli bir miktar gir.');
+      return;
+    }
 
+    final expirationDate = _parseDate(dateInput);
+    if (expirationDate == null) {
+      _showMessage('Lutfen gecerli bir tarih sec.');
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    try {
+      final barcode = barcodeInput.isEmpty
+          ? BackendApiService.instance.createFallbackBarcode(productName)
+          : barcodeInput;
+
+      await BackendApiService.instance.createProductAndInventory(
+        productName: productName,
+        barcode: barcode,
+        categoryLabel: category,
+        quantity: quantity,
+        unitLabel: _selectedUnit,
+        expirationDate: expirationDate,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      _showMessage('Urun envanterine basariyla eklendi.');
+      Navigator.of(context).pop(true);
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _isSubmitting = false;
+      });
+      _showMessage(error.toString());
+    }
+  }
+
+  void _showMessage(String message) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(message)));
@@ -217,14 +266,14 @@ class _AddProductScreenState extends State<AddProductScreen> {
           icon: const Icon(Icons.arrow_back_rounded),
         ),
         title: Text(
-          'MutfakAsistanım',
+          'MutfakAsistanim',
           style: textTheme.titleLarge?.copyWith(
             color: AppColors.primary,
             fontWeight: FontWeight.w800,
           ),
         ),
         centerTitle: true,
-        actions: [
+        actions: <Widget>[
           Padding(
             padding: const EdgeInsets.only(right: 10),
             child: IconButton(
@@ -243,7 +292,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               constraints: const BoxConstraints(maxWidth: 920),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   _HeroSection(textTheme: textTheme),
                   const SizedBox(height: 28),
                   Container(
@@ -252,7 +301,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     decoration: BoxDecoration(
                       color: AppColors.surface,
                       borderRadius: BorderRadius.circular(32),
-                      boxShadow: const [
+                      boxShadow: const <BoxShadow>[
                         BoxShadow(
                           color: AppColors.shadow,
                           blurRadius: 32,
@@ -262,8 +311,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (_hasScanContext) ...[
+                      children: <Widget>[
+                        if (_hasScanContext) ...<Widget>[
                           _ScanSummaryCard(
                             title: _scanTitle,
                             value: _scanValue,
@@ -273,12 +322,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
                           ),
                           const SizedBox(height: 22),
                         ],
-                        if (_hasAnalysis) ...[
+                        if (_hasAnalysis) ...<Widget>[
                           _AnalysisSummaryCard(
                             title:
                                 widget.analysisTitle?.trim().isNotEmpty == true
                                 ? widget.analysisTitle!.trim()
-                                : 'TensorFlow on analizi',
+                                : 'Gorsel analiz',
                             confidenceLabel: widget.analysisConfidenceLabel
                                 ?.trim(),
                             notes: widget.analysisNotes,
@@ -286,10 +335,17 @@ class _AddProductScreenState extends State<AddProductScreen> {
                           const SizedBox(height: 22),
                         ],
                         CustomInputField(
-                          label: 'Ürün Adı',
-                          hintText: 'Ürün adı',
+                          label: 'Urun Adi',
+                          hintText: 'Urun adi',
                           prefixIcon: Icons.edit_note_rounded,
                           controller: _productNameController,
+                        ),
+                        const SizedBox(height: 18),
+                        CustomInputField(
+                          label: 'Barkod',
+                          hintText: 'Varsa barkod girin',
+                          prefixIcon: Icons.qr_code_2_rounded,
+                          controller: _barcodeController,
                         ),
                         const SizedBox(height: 22),
                         LayoutBuilder(
@@ -307,10 +363,21 @@ class _AddProductScreenState extends State<AddProductScreen> {
                               onPickDate: _pickDate,
                             );
 
+                            final quantityFields = _QuantityDetailsCard(
+                              quantityController: _quantityController,
+                              selectedUnit: _selectedUnit,
+                              unitLabels: _unitLabels,
+                              onUnitSelected: (value) {
+                                setState(() {
+                                  _selectedUnit = value;
+                                });
+                              },
+                            );
+
                             if (stacked) {
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
+                                children: <Widget>[
                                   CategoryDropdown(
                                     label: 'Kategori',
                                     value: _selectedCategory,
@@ -322,35 +389,43 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                     },
                                   ),
                                   const SizedBox(height: 22),
+                                  quantityFields,
+                                  const SizedBox(height: 22),
                                   dateFields,
                                 ],
                               );
                             }
 
-                            return Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: CategoryDropdown(
-                                    label: 'Kategori',
-                                    value: _selectedCategory,
-                                    items: _categories,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _selectedCategory = value;
-                                      });
-                                    },
-                                  ),
+                            return Column(
+                              children: <Widget>[
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Expanded(
+                                      child: CategoryDropdown(
+                                        label: 'Kategori',
+                                        value: _selectedCategory,
+                                        items: _categories,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            _selectedCategory = value;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(width: 18),
+                                    Expanded(child: quantityFields),
+                                  ],
                                 ),
-                                const SizedBox(width: 18),
-                                Expanded(child: dateFields),
+                                const SizedBox(height: 22),
+                                dateFields,
                               ],
                             );
                           },
                         ),
                         const SizedBox(height: 24),
                         Text(
-                          'Hızlı Öneriler',
+                          'Hizli Oneriler',
                           style: textTheme.labelMedium?.copyWith(
                             color: AppColors.textSecondary,
                           ),
@@ -358,7 +433,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         const SizedBox(height: 12),
                         if (_quickSuggestions.isEmpty)
                           Text(
-                            'Tarama sonrası ürün adı önerileri burada görünecek.',
+                            'Kamera ile tarama yaptiginda sana uygun urun adi onerilerini burada gorebilirsin.',
                             style: textTheme.bodySmall?.copyWith(
                               color: AppColors.textSecondary,
                             ),
@@ -380,10 +455,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         DecoratedBox(
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [AppColors.primary, AppColors.primaryDim],
+                              colors: <Color>[
+                                AppColors.primary,
+                                AppColors.primaryDim,
+                              ],
                             ),
                             borderRadius: BorderRadius.circular(24),
-                            boxShadow: const [
+                            boxShadow: const <BoxShadow>[
                               BoxShadow(
                                 color: AppColors.shadow,
                                 blurRadius: 28,
@@ -392,8 +470,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
                             ],
                           ),
                           child: CommonButton(
-                            label: 'Ürün Ekle',
-                            onPressed: _submitDraft,
+                            label: _isSubmitting
+                                ? 'Kaydediliyor...'
+                                : 'Urun Ekle',
+                            onPressed: _isSubmitting ? null : _submitProduct,
                             padding: const EdgeInsets.symmetric(
                               horizontal: 24,
                               vertical: 20,
@@ -416,7 +496,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                      children: <Widget>[
                         const Padding(
                           padding: EdgeInsets.only(top: 2),
                           child: Icon(
@@ -428,15 +508,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         Expanded(
                           child: Text.rich(
                             TextSpan(
-                              text: 'Mutfak İpucu: ',
+                              text: 'Mutfak Ipucu: ',
                               style: textTheme.bodyMedium?.copyWith(
                                 color: AppColors.primaryDim,
                                 fontWeight: FontWeight.w700,
                               ),
-                              children: [
+                              children: <InlineSpan>[
                                 TextSpan(
                                   text:
-                                      'TETT ya da son kullanma tarihi çoğu üründe kapak, üst yüzey veya yan etiket üzerinde yer alır. Ürünü taradıktan sonra bu alanı kontrol ederek tarihi hemen ekleyin.',
+                                      'Urunu dogru takip edebilmek icin tarih alanini bos birakma ve miktari gercek degeriyle gir.',
                                   style: textTheme.bodyMedium?.copyWith(
                                     color: AppColors.textPrimary,
                                     fontWeight: FontWeight.w500,
@@ -460,6 +540,48 @@ class _AddProductScreenState extends State<AddProductScreen> {
       ),
     );
   }
+
+  DateTime? _parseDate(String value) {
+    if (value.trim().isEmpty) {
+      return null;
+    }
+
+    final dotMatch = RegExp(r'^(\d{2})\.(\d{2})\.(\d{4})$').firstMatch(value);
+    if (dotMatch != null) {
+      return DateTime(
+        int.parse(dotMatch.group(3)!),
+        int.parse(dotMatch.group(2)!),
+        int.parse(dotMatch.group(1)!),
+      );
+    }
+
+    final dashMatch = RegExp(r'^(\d{2})-(\d{2})-(\d{4})$').firstMatch(value);
+    if (dashMatch != null) {
+      return DateTime(
+        int.parse(dashMatch.group(3)!),
+        int.parse(dashMatch.group(2)!),
+        int.parse(dashMatch.group(1)!),
+      );
+    }
+
+    final iso = DateTime.tryParse(value);
+    if (iso != null) {
+      return DateTime(iso.year, iso.month, iso.day);
+    }
+
+    return null;
+  }
+
+  String _normalizeDateText(String value) {
+    final parsed = _parseDate(value);
+    if (parsed == null) {
+      return value;
+    }
+
+    final month = parsed.month.toString().padLeft(2, '0');
+    final day = parsed.day.toString().padLeft(2, '0');
+    return '$day.$month.${parsed.year}';
+  }
 }
 
 class _HeroSection extends StatelessWidget {
@@ -476,9 +598,9 @@ class _HeroSection extends StatelessWidget {
         if (stacked) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               Text(
-                'Ürünü\nKayda Hazırla',
+                'Urunu\nKayda Hazirla',
                 style: textTheme.displayMedium?.copyWith(
                   color: AppColors.primary,
                   height: 1.02,
@@ -486,7 +608,7 @@ class _HeroSection extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'Ürün adını, kategorisini ve varsa Son Kullanma Tarihi / TETT bilgisini ekleyerek envanterinizi güncel tutun.',
+                'Urun bilgilerini adim adim girerek mutfak envanterini kolayca guncelle.',
                 style: textTheme.bodyLarge,
               ),
               const SizedBox(height: 20),
@@ -497,14 +619,14 @@ class _HeroSection extends StatelessWidget {
 
         return Row(
           crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
+          children: <Widget>[
             Expanded(
               flex: 3,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   Text(
-                    'Ürünü\nKayda Hazırla',
+                    'Urunu\nKayda Hazirla',
                     style: textTheme.displayMedium?.copyWith(
                       color: AppColors.primary,
                       height: 1.02,
@@ -514,7 +636,7 @@ class _HeroSection extends StatelessWidget {
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 420),
                     child: Text(
-                      'Ürün adını, kategorisini ve varsa Son Kullanma Tarihi / TETT bilgisini ekleyerek envanterinizi güncel tutun.',
+                      'Urun adi, kategori, miktar ve varsa son kullanma tarihi bilgisini ekleyerek envanterini duzenli tut.',
                       style: textTheme.bodyLarge,
                     ),
                   ),
@@ -544,11 +666,14 @@ class _HeroVisual extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.surfaceContainerLow, AppColors.surfaceContainer],
+          colors: <Color>[
+            AppColors.surfaceContainerLow,
+            AppColors.surfaceContainer,
+          ],
         ),
       ),
       child: Stack(
-        children: [
+        children: <Widget>[
           Positioned(
             right: -26,
             top: -24,
@@ -578,7 +703,7 @@ class _HeroVisual extends StatelessWidget {
                 borderRadius: BorderRadius.circular(999),
               ),
               child: Text(
-                'Ürün kaydı',
+                'Kayit Bilgisi',
                 style: textTheme.labelMedium?.copyWith(
                   color: AppColors.primary,
                 ),
@@ -620,7 +745,7 @@ class _ScanSummaryCard extends StatelessWidget {
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           _ScanSummaryLeading(
             imageBytes: imageBytes,
             isBarcodeScan: isBarcodeScan,
@@ -629,7 +754,7 @@ class _ScanSummaryCard extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: <Widget>[
                 Text(
                   title,
                   style: textTheme.labelLarge?.copyWith(
@@ -723,9 +848,9 @@ class _AnalysisSummaryCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Row(
-            children: [
+            children: <Widget>[
               Container(
                 width: 42,
                 height: 42,
@@ -742,7 +867,7 @@ class _AnalysisSummaryCard extends StatelessWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Text(
                       title,
                       style: textTheme.titleMedium?.copyWith(
@@ -762,14 +887,14 @@ class _AnalysisSummaryCard extends StatelessWidget {
               ),
             ],
           ),
-          if (notes.isNotEmpty) ...[
+          if (notes.isNotEmpty) ...<Widget>[
             const SizedBox(height: 14),
             ...notes.map(
               (note) => Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     const Padding(
                       padding: EdgeInsets.only(top: 2),
                       child: Icon(
@@ -798,6 +923,58 @@ class _AnalysisSummaryCard extends StatelessWidget {
   }
 }
 
+class _QuantityDetailsCard extends StatelessWidget {
+  const _QuantityDetailsCard({
+    required this.quantityController,
+    required this.selectedUnit,
+    required this.unitLabels,
+    required this.onUnitSelected,
+  });
+
+  final TextEditingController quantityController;
+  final String selectedUnit;
+  final List<String> unitLabels;
+  final ValueChanged<String> onUnitSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        CustomInputField(
+          label: 'Miktar',
+          hintText: '1',
+          prefixIcon: Icons.scale_rounded,
+          controller: quantityController,
+        ),
+        const SizedBox(height: 12),
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 10),
+          child: Text(
+            'Birim',
+            style: textTheme.labelMedium?.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: unitLabels.map((unit) {
+            return _DateTypeChip(
+              label: unit,
+              selected: selectedUnit == unit,
+              onTap: () => onUnitSelected(unit),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+}
+
 class _DateDetailsCard extends StatelessWidget {
   const _DateDetailsCard({
     required this.selectedDateType,
@@ -816,17 +993,17 @@ class _DateDetailsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final dateFieldLabel = selectedDateType == 'Belirtilmemiş'
+    final dateFieldLabel = selectedDateType == 'Belirtilmemis'
         ? 'Tarih'
         : selectedDateType;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+      children: <Widget>[
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 10),
           child: Text(
-            'Tarih Türü',
+            'Tarih Turu',
             style: textTheme.labelMedium?.copyWith(
               color: AppColors.textSecondary,
             ),
@@ -846,7 +1023,7 @@ class _DateDetailsCard extends StatelessWidget {
         const SizedBox(height: 16),
         CustomInputField(
           label: dateFieldLabel,
-          hintText: 'Tarih seçin',
+          hintText: 'Tarih secin',
           prefixIcon: Icons.event_rounded,
           controller: dateController,
           readOnly: true,
@@ -858,7 +1035,7 @@ class _DateDetailsCard extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         Text(
-          'Üründe hangisi yazıyorsa onu seçin. Son Kullanma Tarihi ya da TETT bilgisi yoksa bu alanı boş bırakabilirsiniz.',
+          'Bu urun icin son kullanma tarihi veya TETT secmelisin.',
           style: textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
         ),
       ],

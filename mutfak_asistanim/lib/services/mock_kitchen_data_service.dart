@@ -72,14 +72,14 @@ class KitchenHomeData {
     required this.description,
     required this.weeklySavingsLabel,
     required this.products,
-    required this.suggestion,
+    this.suggestion,
   });
 
   final String displayName;
   final String description;
   final String weeklySavingsLabel;
   final List<ProductCardData> products;
-  final KitchenHomeSuggestionData suggestion;
+  final KitchenHomeSuggestionData? suggestion;
 }
 
 class KitchenHomeSuggestionData {
@@ -446,6 +446,7 @@ class MockKitchenDataService {
 
   Map<String, dynamic> _buildRouteArguments(_RecipeMatch match) {
     return <String, dynamic>{
+      'id': match.recipe.id,
       'title': match.recipe.title,
       'duration': match.recipe.duration,
       'tag': match.recipe.tag,

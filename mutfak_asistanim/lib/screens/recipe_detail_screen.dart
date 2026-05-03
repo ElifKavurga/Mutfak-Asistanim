@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'shopping_list_screen.dart';
+import '../services/backend_api_service.dart';
 import '../theme/app_colors.dart';
+import 'shopping_list_screen.dart';
 
 class RecipeDetailScreen extends StatefulWidget {
   const RecipeDetailScreen({super.key});
@@ -13,15 +14,19 @@ class RecipeDetailScreen extends StatefulWidget {
 }
 
 class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
-  late final Map<String, dynamic> _recipe;
-  late final List<String> _ingredients;
-  late final Set<String> _missingIngredients;
-  late final List<bool> _checked;
-  late final List<_RecipeStepData> _steps;
-  late final String _servings;
-  late final String _calories;
-  late final String _chefNote;
+  late Map<String, dynamic> _recipe;
+  late List<String> _ingredients;
+  late Set<String> _missingIngredients;
+  late List<bool> _checked;
+  late List<_RecipeStepData> _steps;
+  late String _servings;
+  late String _calories;
+  late String _chefNote;
+
+  int? _recipeId;
   bool _loaded = false;
+  bool _isDetailLoading = false;
+  String? _detailError;
 
   @override
   void didChangeDependencies() {
@@ -32,11 +37,23 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
     final args = ModalRoute.of(context)?.settings.arguments;
     final map = args is Map<String, dynamic> ? args : <String, dynamic>{};
+    _applyRouteArguments(map);
+    _loaded = true;
+
+    if (_recipeId != null) {
+      _loadRecipeDetail();
+    }
+  }
+
+  void _applyRouteArguments(Map<String, dynamic> map) {
     final routeGradientColors =
         (map['gradientColors'] as List?)?.whereType<Color>().toList() ??
         const <Color>[];
 
-    _recipe = {
+    _recipeId = map['id'] is int
+        ? map['id'] as int
+        : int.tryParse(map['id']?.toString() ?? '');
+    _recipe = <String, dynamic>{
       'title': map['title'] as String? ?? '',
       'tag': map['tag'] as String? ?? '',
       'duration': map['duration'] as String? ?? '',
@@ -44,12 +61,14 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
           ? map['icon'] as IconData
           : Icons.restaurant_menu_rounded,
       'gradientColors': routeGradientColors.isEmpty
-          ? const [Color(0xFF92A87B), Color(0xFF4C673C)]
+          ? const <Color>[Color(0xFF92A87B), Color(0xFF4C673C)]
           : routeGradientColors,
     };
-    _servings = map['servings'] as String? ?? '';
+    _servings = map['servings'] as String? ?? 'Belirtilmedi';
     _calories = map['calories'] as String? ?? '0 kcal';
-    _chefNote = map['chefNote'] as String? ?? '';
+    _chefNote =
+        map['chefNote'] as String? ??
+        'Tarifi kendi damak zevkine göre küçük dokunuşlarla kolayca uyarlayabilirsin.';
     _ingredients =
         (map['ingredients'] as List?)?.whereType<String>().toList(
           growable: false,
@@ -61,7 +80,42 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
             .toSet();
     _steps = _parseSteps(map['steps']);
     _checked = List<bool>.filled(_ingredients.length, false);
-    _loaded = true;
+  }
+
+  Future<void> _loadRecipeDetail() async {
+    final recipeId = _recipeId;
+    if (recipeId == null) {
+      return;
+    }
+
+    setState(() {
+      _isDetailLoading = true;
+      _detailError = null;
+    });
+
+    try {
+      final details = await BackendApiService.instance.loadRecipeRouteArguments(
+        recipeId: recipeId,
+        fallbackArguments: _recipe,
+      );
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _applyRouteArguments(details);
+        _isDetailLoading = false;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _detailError = error.toString();
+        _isDetailLoading = false;
+      });
+    }
   }
 
   List<_RecipeStepData> _parseSteps(Object? rawSteps) {
@@ -94,11 +148,11 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
-        slivers: [
+        slivers: <Widget>[
           SliverAppBar(
             pinned: true,
             stretch: true,
-            expandedHeight: 430,
+            expandedHeight: 360,
             backgroundColor: AppColors.background,
             surfaceTintColor: Colors.transparent,
             leadingWidth: 72,
@@ -109,12 +163,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                 onTap: () => Navigator.of(context).pop(),
               ),
             ),
-            actions: [
-              _TopCircleButton(
-                icon: Icons.favorite_border_rounded,
-                onTap: () {},
-              ),
-              const SizedBox(width: 8),
+            actions: <Widget>[
               Padding(
                 padding: const EdgeInsets.only(right: 16),
                 child: _TopCircleButton(
@@ -138,7 +187,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               ),
               background: Stack(
                 fit: StackFit.expand,
-                children: [
+                children: <Widget>[
                   DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -182,7 +231,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [
+                        colors: <Color>[
                           Colors.black.withValues(alpha: 0.08),
                           Colors.transparent,
                           AppColors.background.withValues(alpha: 0.95),
@@ -193,16 +242,18 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                   Positioned(
                     left: 24,
                     right: 24,
-                    bottom: 84,
+                    bottom: 68,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                      children: <Widget>[
                         Wrap(
                           spacing: 10,
                           runSpacing: 10,
-                          children: [
+                          children: <Widget>[
                             _HeroChip(
-                              label: _mapCategory(_recipe['tag'] as String),
+                              label: (_recipe['tag'] as String).isEmpty
+                                  ? 'TARIF'
+                                  : _recipe['tag'] as String,
                               backgroundColor: AppColors.primary,
                               foregroundColor: AppColors.onPrimary,
                             ),
@@ -238,32 +289,48 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 1220),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final stacked = constraints.maxWidth < 980;
-                      final sidebar = _buildSidebar(context);
-                      final content = _buildContent(context);
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      if (_isDetailLoading) ...<Widget>[
+                        const LinearProgressIndicator(),
+                        const SizedBox(height: 14),
+                      ],
+                      if (_detailError != null) ...<Widget>[
+                        _InlineErrorCard(
+                          message: _detailError!,
+                          onRetry: _loadRecipeDetail,
+                        ),
+                        const SizedBox(height: 18),
+                      ],
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final stacked = constraints.maxWidth < 980;
+                          final sidebar = _buildSidebar(context);
+                          final content = _buildContent(context);
 
-                      if (stacked) {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            sidebar,
-                            const SizedBox(height: 28),
-                            content,
-                          ],
-                        );
-                      }
+                          if (stacked) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                sidebar,
+                                const SizedBox(height: 28),
+                                content,
+                              ],
+                            );
+                          }
 
-                      return Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(flex: 4, child: sidebar),
-                          const SizedBox(width: 28),
-                          Expanded(flex: 7, child: content),
-                        ],
-                      );
-                    },
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Expanded(flex: 4, child: sidebar),
+                              const SizedBox(width: 28),
+                              Expanded(flex: 7, child: content),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -279,9 +346,9 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+      children: <Widget>[
         Row(
-          children: [
+          children: <Widget>[
             Expanded(
               child: _StatCard(
                 icon: Icons.restaurant_rounded,
@@ -309,7 +376,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               Text(
                 'Malzemeler',
                 style: textTheme.headlineMedium?.copyWith(
@@ -317,42 +384,48 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              ...List.generate(_ingredients.length, (index) {
-                final ingredient = _ingredients[index];
-                final isMissing = _missingIngredients.contains(ingredient);
+              if (_ingredients.isEmpty)
+                Text(
+                  'Malzeme listesi şu anda görüntülenemiyor.',
+                  style: textTheme.bodyLarge,
+                )
+              else
+                ...List.generate(_ingredients.length, (index) {
+                  final ingredient = _ingredients[index];
+                  final isMissing = _missingIngredients.contains(ingredient);
 
-                return CheckboxListTile(
-                  value: _checked[index],
-                  contentPadding: EdgeInsets.zero,
-                  controlAffinity: ListTileControlAffinity.leading,
-                  activeColor: AppColors.primary,
-                  onChanged: (value) {
-                    setState(() {
-                      _checked[index] = value ?? false;
-                    });
-                  },
-                  title: Text(
-                    ingredient,
-                    style: textTheme.bodyLarge?.copyWith(
-                      color: _checked[index]
-                          ? AppColors.outline
-                          : AppColors.textPrimary,
-                      decoration: _checked[index]
-                          ? TextDecoration.lineThrough
-                          : TextDecoration.none,
+                  return CheckboxListTile(
+                    value: _checked[index],
+                    contentPadding: EdgeInsets.zero,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    activeColor: AppColors.primary,
+                    onChanged: (value) {
+                      setState(() {
+                        _checked[index] = value ?? false;
+                      });
+                    },
+                    title: Text(
+                      ingredient,
+                      style: textTheme.bodyLarge?.copyWith(
+                        color: _checked[index]
+                            ? AppColors.outline
+                            : AppColors.textPrimary,
+                        decoration: _checked[index]
+                            ? TextDecoration.lineThrough
+                            : TextDecoration.none,
+                      ),
                     ),
-                  ),
-                  subtitle: isMissing
-                      ? Text(
-                          'Eksik malzeme',
-                          style: textTheme.bodyMedium?.copyWith(
-                            color: const Color(0xFFB94C3A),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        )
-                      : null,
-                );
-              }),
+                    subtitle: isMissing
+                        ? Text(
+                            'Eksik malzeme',
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: const Color(0xFFB94C3A),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          )
+                        : null,
+                  );
+                }),
               const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
@@ -392,7 +465,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+      children: <Widget>[
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(20),
@@ -405,7 +478,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               Text(
                 'Şefin Notu',
                 style: textTheme.titleMedium?.copyWith(
@@ -429,19 +502,25 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
           style: textTheme.headlineMedium?.copyWith(color: AppColors.primary),
         ),
         const SizedBox(height: 18),
-        ...List.generate(_steps.length, (index) {
-          return Padding(
-            padding: EdgeInsets.only(
-              bottom: index == _steps.length - 1 ? 0 : 22,
-            ),
-            child: _StepCard(
-              stepNumber: index + 1,
-              title: _steps[index].title,
-              description: _steps[index].description,
-              showPlaceholder: _steps[index].showPlaceholder,
-            ),
-          );
-        }),
+        if (_steps.isEmpty)
+          Text(
+            'Hazırlanış adımları henüz ayrıntılı olarak eklenmedi. Genel akışı yine de burada görebilirsin.',
+            style: textTheme.bodyLarge,
+          )
+        else
+          ...List.generate(_steps.length, (index) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: index == _steps.length - 1 ? 0 : 22,
+              ),
+              child: _StepCard(
+                stepNumber: index + 1,
+                title: _steps[index].title,
+                description: _steps[index].description,
+                showPlaceholder: _steps[index].showPlaceholder,
+              ),
+            );
+          }),
         const SizedBox(height: 30),
         Container(
           width: double.infinity,
@@ -458,16 +537,16 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               if (stacked) {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Text(
-                      'Bu tarifi beğendiniz mi?',
+                      'Bu tarifi denedin mi?',
                       style: textTheme.titleLarge?.copyWith(
                         color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Pişirdiğiniz yemeğin fotoğrafını bizimle paylaşın.',
+                      'Hazırladığın yemeğin fotoğrafını paylaşarak başkalarına ilham olabilirsin.',
                       style: textTheme.bodyLarge,
                     ),
                     const SizedBox(height: 18),
@@ -477,20 +556,20 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               }
 
               return Row(
-                children: [
+                children: <Widget>[
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                      children: <Widget>[
                         Text(
-                          'Bu tarifi beğendiniz mi?',
+                          'Bu tarifi denedin mi?',
                           style: textTheme.titleLarge?.copyWith(
                             color: AppColors.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Pişirdiğiniz yemeğin fotoğrafını bizimle paylaşın.',
+                          'Hazırladığın yemeğin fotoğrafını paylaşarak başkalarına ilham olabilirsin.',
                           style: textTheme.bodyLarge,
                         ),
                       ],
@@ -508,22 +587,64 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   }
 }
 
-String _mapCategory(String tag) {
-  switch (tag) {
-    case 'VEGAN':
-      return 'Vegan';
-    case 'LOW CARBON':
-      return 'Low Carbon';
-    default:
-      return tag;
+class _InlineErrorCard extends StatelessWidget {
+  const _InlineErrorCard({required this.message, required this.onRetry});
+
+  final String message;
+  final Future<void> Function() onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF4F1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE7B8AD)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          const Icon(Icons.warning_amber_rounded, color: Color(0xFFB94C3A)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  'Tarif detayları açılırken bir sorun oluştu',
+                  style: textTheme.titleMedium?.copyWith(
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(message, style: textTheme.bodyMedium),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          TextButton(onPressed: onRetry, child: const Text('Tekrar Dene')),
+        ],
+      ),
+    );
   }
 }
 
 class _TopCircleButton extends StatelessWidget {
-  const _TopCircleButton({required this.icon, required this.onTap});
+  const _TopCircleButton({
+    required this.icon,
+    required this.onTap,
+    this.iconColor = AppColors.primary,
+    this.backgroundColor,
+  });
 
   final IconData icon;
   final VoidCallback onTap;
+  final Color iconColor;
+  final Color? backgroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -536,10 +657,10 @@ class _TopCircleButton extends StatelessWidget {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.88),
+            color: backgroundColor ?? Colors.white.withValues(alpha: 0.88),
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, color: AppColors.primary),
+          child: Icon(icon, color: iconColor),
         ),
       ),
     );
@@ -597,7 +718,7 @@ class _StatCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
       ),
       child: Column(
-        children: [
+        children: <Widget>[
           Icon(icon, color: AppColors.primary, size: 28),
           const SizedBox(height: 10),
           Text(label, style: textTheme.labelSmall),
@@ -638,10 +759,10 @@ class _StepCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               Container(
                 width: 42,
                 height: 42,
@@ -661,7 +782,7 @@ class _StepCard extends StatelessWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Text(
                       title,
                       style: textTheme.titleLarge?.copyWith(
@@ -675,7 +796,7 @@ class _StepCard extends StatelessWidget {
               ),
             ],
           ),
-          if (showPlaceholder) ...[
+          if (showPlaceholder) ...<Widget>[
             const SizedBox(height: 18),
             Container(
               height: 190,
@@ -685,11 +806,11 @@ class _StepCard extends StatelessWidget {
                 gradient: const LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [Color(0xFFE7E1CA), Color(0xFFC7B57C)],
+                  colors: <Color>[Color(0xFFE7E1CA), Color(0xFFC7B57C)],
                 ),
               ),
               child: Stack(
-                children: [
+                children: <Widget>[
                   Positioned(
                     right: 18,
                     top: 18,

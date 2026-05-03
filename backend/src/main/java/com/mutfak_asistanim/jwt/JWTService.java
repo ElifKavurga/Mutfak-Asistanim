@@ -4,6 +4,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.function.Function;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -15,14 +16,23 @@ import io.jsonwebtoken.security.Keys;
 
 @Service
 public class JWTService {
-	
-	public static final String SECRET_KEY = "SjRh3hRRCHAH8+mQjGrRuCXJUsbXckukOimZ+eDJ2fA=";
+
+	private final Key signingKey;
+	private final long expirationInMilliseconds;
+
+	public JWTService(
+			@Value("${app.jwt.secret}") String secretKey,
+			@Value("${app.jwt.expiration-ms:7200000}") long expirationInMilliseconds) {
+		byte[] bytes = Decoders.BASE64.decode(secretKey);
+		this.signingKey = Keys.hmacShaKeyFor(bytes);
+		this.expirationInMilliseconds = expirationInMilliseconds;
+	}
 	
 	public String generateToken(UserDetails userDetails) {
 		return Jwts.builder()
 				.setSubject(userDetails.getUsername())
 				.setIssuedAt(new Date())
-				.setExpiration(new Date(System.currentTimeMillis() + 1000*60*60*2))
+				.setExpiration(new Date(System.currentTimeMillis() + expirationInMilliseconds))
 				.signWith(getKey(), SignatureAlgorithm.HS256)
 				.compact();
 	}
@@ -51,8 +61,7 @@ public class JWTService {
 	}
 	
 	public Key getKey() {
-		byte[] bytes = Decoders.BASE64.decode(SECRET_KEY);
-		return Keys.hmacShaKeyFor(bytes);
+		return signingKey;
 	}
 	
 }

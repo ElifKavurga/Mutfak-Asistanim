@@ -9,22 +9,22 @@ class PrivacyPolicyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const _InfoPageScreen(
-      title: 'Gizlilik Politikası',
+      title: 'Gizlilik Politikasi',
       sections: [
         _InfoSection(
-          heading: 'Veri Kullanımı',
+          heading: 'Veri Kullanimi',
           body:
-              'MutfakAsistanım, uygulama deneyimini iyileştirmek için gerekli temel kullanıcı bilgilerini güvenli şekilde işler. Bu ekran örnek içerik amacıyla hazırlanmıştır.',
+              'MutfakAsistanim, uygulama deneyimini iyilestirmek icin gerekli temel bilgileri guvenli sekilde islemeyi hedefler.',
         ),
         _InfoSection(
-          heading: 'Bilgi Güvenliği',
+          heading: 'Bilgi Guvenligi',
           body:
-              'Kişisel verilerinizin korunması için güncel güvenlik yaklaşımlarını benimsemeyi hedefliyoruz. Üretim sürümünde ayrıntılı hukuki metin burada yer alacaktır.',
+              'Hesap ve kullanim verilerinin korunmasi icin guncel guvenlik yaklasimlari benimsenir.',
         ),
         _InfoSection(
-          heading: 'Kontrol Sizde',
+          heading: 'Kullanici Kontrolu',
           body:
-              'Hesap ayarlarınız ve destek kanallarımız üzerinden verilerinizle ilgili taleplerinizi iletebilirsiniz.',
+              'Hesap ayarlari ve destek kanallari uzerinden verilerinle ilgili taleplerini iletebilirsin.',
         ),
       ],
     );
@@ -37,22 +37,22 @@ class TermsOfUseScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const _InfoPageScreen(
-      title: 'Kullanım Şartları',
+      title: 'Kullanim Sartlari',
       sections: [
         _InfoSection(
-          heading: 'Hizmet Kapsamı',
+          heading: 'Hizmet Kapsami',
           body:
-              'MutfakAsistanım; malzeme takibi, tarif önerileri ve mutfak planlaması gibi deneyimlere yönelik bir yardımcı arayüz sunar.',
+              'MutfakAsistanim; envanter takibi, tarif onerileri ve mutfak planlamasi gibi alanlarda kullaniciya rehberlik eder.',
         ),
         _InfoSection(
-          heading: 'Sorumluluk',
+          heading: 'Kullanim Sorumlulugu',
           body:
-              'Uygulama içeriği bilgilendirme amaçlıdır. Nihai kullanım koşulları ve yasal metinler yayın öncesinde detaylandırılacaktır.',
+              'Uygulamadaki icerikler bilgilendirme amaclidir. Nihai karar ve kullanim sorumlulugu kullaniciya aittir.',
         ),
         _InfoSection(
-          heading: 'Güncellemeler',
+          heading: 'Guncellemeler',
           body:
-              'Deneyimi geliştirmek için arayüzler ve özellikler zaman içinde güncellenebilir. Devam eden kullanım, güncel şartların kabulü anlamına gelir.',
+              'Uygulama deneyimini gelistirmek icin ekranlar, ozellikler ve icerikler zamanla guncellenebilir.',
         ),
       ],
     );
@@ -65,22 +65,22 @@ class HelpSupportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const _InfoPageScreen(
-      title: 'Yardım ve Destek',
+      title: 'Yardim ve Destek',
       sections: [
         _InfoSection(
-          heading: 'Sık Sorulan Konular',
+          heading: 'Sik Sorulan Konular',
           body:
-              'Hesap erişimi, tarif önerileri, bildirimler ve malzeme takibiyle ilgili temel yönlendirmeler burada listelenebilir.',
+              'Giris, kayit, envanter takibi, tarif onerileri ve bildirimler ile ilgili temel yardim basliklari burada yer alir.',
         ),
         _InfoSection(
           heading: 'Destek Talebi',
           body:
-              'Bir sorun yaşarsanız uygulama içi destek formu veya e-posta desteği üzerinden bize ulaşabileceğiniz alan bu sayfada yer alacaktır.',
+              'Bir sorun yasarsan uygulama ici destek alani veya iletisim kanallari uzerinden bize ulasabilirsin.',
         ),
         _InfoSection(
-          heading: 'Hızlı Yardım',
+          heading: 'Hizli Yonlendirme',
           body:
-              'Şimdilik bu ekran örnek içerik gösterir. Yayın sürümünde detaylı yardım başlıkları ve iletişim seçenekleri eklenecektir.',
+              'Sorun yasadiginda once internet baglantini, giris bilgilerini ve guncel uygulama surumunu kontrol etmen faydali olur.',
         ),
       ],
     );
@@ -131,7 +131,7 @@ class _InfoPageScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Bu sayfa, mevcut tasarım diline uyumlu örnek içerik göstermek için hazırlanmıştır.',
+                        'Bu sayfa uygulamayi daha rahat kullanabilmen icin temel bilgilendirme icerigi sunar.',
                         style: textTheme.bodyLarge,
                       ),
                       const SizedBox(height: 24),
