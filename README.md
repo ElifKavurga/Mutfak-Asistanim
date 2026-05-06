@@ -39,48 +39,54 @@ Proje **dort kisilik bir ekip** tarafindan gelistirilmistir:
 
 ## Uygulama goruntuleri
 
-Asagidaki goruntuler `resimler/` klasorundeki ekran goruntuleridir.
+Asagidaki goruntuler `resimler/` klasorundedir. Hepsi ayni goruntu genisliginde (210 px) olacak sekilde ayarlanmistir; tablo kullanilmamistir.
 
 ### Tanitim (onboarding)
 
-Splash sonrasi kullaniciyi karsilayan tanitim adimlari:
-
-| | |
-| --- | --- |
-| ![Tanitim 1](resimler/giris1.png) | ![Tanitim 2](resimler/giris2.png) |
-| ![Tanitim 3](resimler/giris3.png) | ![Tanitim 4](resimler/giris4.png) |
+<p align="center">
+  <img width="210" alt="Tanitim 1" src="resimler/giris1.png" />
+  <img width="210" alt="Tanitim 2" src="resimler/giris2.png" />
+  <img width="210" alt="Tanitim 3" src="resimler/giris3.png" />
+  <img width="210" alt="Tanitim 4" src="resimler/giris4.png" />
+</p>
 
 ### Giris ve kayit
 
-| Giris yap | Kayit ol |
-| --- | --- |
-| ![Giris yap](resimler/giris_yap.png) | ![Kayit ol](resimler/kayit_ol.png) |
+<p align="center">
+  <img width="210" alt="Giris yap" src="resimler/giris_yap.png" />
+  <img width="210" alt="Kayit ol" src="resimler/kayit_ol.png" />
+</p>
 
-### Ana akis
+### Ana ekran, buzdolabi ve tarama
 
-| Ana ekran | Buzdolabim | Buzdolabim (detay) |
-| --- | --- | --- |
-| ![Ana ekran](resimler/ana_ekran.png) | ![Buzdolabim](resimler/buzdolabim1.png) | ![Buzdolabim 2](resimler/buzdolabim2.png) |
+<p align="center">
+  <img width="210" alt="Ana ekran" src="resimler/ana_ekran.png" />
+  <img width="210" alt="Buzdolabim" src="resimler/buzdolabim1.png" />
+  <img width="210" alt="Buzdolabim detay" src="resimler/buzdolabim2.png" />
+</p>
 
-| Urun tara | Yeni urun ekle |
-| --- | --- |
-| ![Urun tara](resimler/tara.png) | ![Yeni urun ekle](resimler/yeni_urun_ekle.png) |
-
-| Alisveris listesi | Planla |
-| --- | --- |
-| ![Alisveris listesi](resimler/alisveris_listesi.png) | ![Planla](resimler/planla.png) |
+<p align="center">
+  <img width="210" alt="Urun tara" src="resimler/tara.png" />
+  <img width="210" alt="Yeni urun ekle" src="resimler/yeni_urun_ekle.png" />
+  <img width="210" alt="Alisveris listesi" src="resimler/alisveris_listesi.png" />
+  <img width="210" alt="Planla" src="resimler/planla.png" />
+</p>
 
 ### Tarifler
 
-| Tarif listesi | Tarif detay 1 | Tarif detay 2 |
-| --- | --- | --- |
-| ![Tarifler](resimler/tarifler.png) | ![Tarif 1](resimler/tarif1.png) | ![Tarif 2](resimler/tarif2.png) |
+<p align="center">
+  <img width="210" alt="Tarifler" src="resimler/tarifler.png" />
+  <img width="210" alt="Tarif detay 1" src="resimler/tarif1.png" />
+  <img width="210" alt="Tarif detay 2" src="resimler/tarif2.png" />
+</p>
 
 ### Profil, bildirimler ve ayarlar
 
-| Profil / istatistik | Bildirimler | Ayarlar |
-| --- | --- | --- |
-| ![Profil](resimler/profil.png) | ![Bildirimler](resimler/bildirimler.png) | ![Ayarlar](resimler/ayarlar.png) |
+<p align="center">
+  <img width="210" alt="Profil" src="resimler/profil.png" />
+  <img width="210" alt="Bildirimler" src="resimler/bildirimler.png" />
+  <img width="210" alt="Ayarlar" src="resimler/ayarlar.png" />
+</p>
 
 ---
 
