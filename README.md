@@ -1,76 +1,120 @@
-# Mutfak-Asistanim
+# Mutfak Asistanim
 
-Yapay zeka destekli gida yonetimi ve israf azaltma uygulamasi.
+**Mutfak Asistanim**, evdeki gida urunlerini duzenli sekilde takip etmeyi, son kullanma tarihlerini goz onunde bulundurmayi ve eldeki malzemelere uygun tariflerle planli tuketimi desteklemeyi amaclayan bir mutfak asistanidir. Uygulama; buzdolabi envanteri, alisveris listesi, bildirimler, tarif kesfi ve yapay zeka destekli urun tarama gibi ozelliklerle israfi azaltmaya ve gunluk mutfak rutinini sadelestirmeye odaklanir.
 
-## Mimari
+Proje **dort kisilik bir ekip** tarafindan gelistirilmistir:
 
-- `backend/`: Spring Boot REST API
-- `mutfak_asistanim/`: Flutter uygulamasi ve Railway icin web servisi
+- Ayşe Arpacı
+- Elif Kavurga
+- Edanur Ayıbasan
+- Uğur Nusretoğlu
 
-Railway uzerinde onerilen kurulum:
+---
 
-1. `backend` adinda bir servis
-2. `frontend` adinda bir servis
-3. Ayni project icinde bir PostgreSQL servisi
+## Kullanilan teknolojiler
 
-Frontend Railway uzerinde Flutter web build'ini sunar ve API isteklerini `BACKEND_URL` uzerinden backend servisine proxy eder. Boylece web tarafinda sabit API adresi ve CORS yonetimi daha sade hale gelir.
+### Mobil ve istemci (Flutter)
 
-## Railway Kurulumu
+- **Flutter** (Dart SDK ^3.11), Material tasarim
+- **HTTP** ile REST API iletisimi
+- **Google ML Kit Text Recognition** — etiket / metin okuma
+- **TensorFlow Lite** (`tflite_flutter`) — cihaz uzerinde urun tarama ve oneri akisi
+- **Camera**, **image_picker**, **image** — kamera ve goruntu isleme
+- **mobile_scanner** — barkod / QR tarama
+- **Open Food Facts** entegrasyonu (urun bilgisi servisi)
 
-### Backend servisi
+### Sunucu (Spring Boot)
 
-- Root Directory: `/backend`
-- Config Path: `/backend/railway.toml`
+- **Java 17**, **Spring Boot 4** (Maven)
+- **Spring Web MVC**, **Spring Data JPA**, **Spring Security**
+- **PostgreSQL** (uretim / Railway), **H2** (gelistirme)
+- **JWT** (jjwt) — kimlik dogrulama ve oturum yonetimi
+- **Lombok**
 
-Tanimlanmasi gereken degiskenler:
+### Altyapi
 
-- `JWT_SECRET`: Guclu bir Base64 secret
-- `JWT_EXPIRATION_MS`: Istege bagli, varsayilan `7200000`
-- `DB_SCHEMA`: Istege bagli, varsayilan `kitchen_assistant`
-- `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`, `PGPASSWORD`:
-  PostgreSQL servisinden reference variable olarak baglanmali
+- **Railway** uzerinde ornek kurulum: ayri backend ve Flutter web servisleri, PostgreSQL; istemci tarafinda `BACKEND_URL` ile API erisimi (ayrintilar asagida).
 
-Istege bagli degiskenler:
+---
 
-- `APP_CORS_ALLOWED_ORIGIN_PATTERNS`
-- `JPA_DDL_AUTO`
-- `JPA_SHOW_SQL`
+## Uygulama goruntuleri
 
-Healthcheck:
+Asagidaki goruntuler `resimler/` klasorundeki ekran goruntuleridir.
 
-- `/health`
+### Tanitim (onboarding)
 
-### Frontend servisi
+Splash sonrasi kullaniciyi karsilayan tanitim adimlari:
 
-- Root Directory: `/mutfak_asistanim`
-- Config Path: `/mutfak_asistanim/railway.toml`
+| | |
+| --- | --- |
+| ![Tanitim 1](resimler/giris1.png) | ![Tanitim 2](resimler/giris2.png) |
+| ![Tanitim 3](resimler/giris3.png) | ![Tanitim 4](resimler/giris4.png) |
 
-Tanimlanmasi gereken degisken:
+### Giris ve kayit
 
-- `BACKEND_URL=http://${{backend.RAILWAY_PRIVATE_DOMAIN}}`
+| Giris yap | Kayit ol |
+| --- | --- |
+| ![Giris yap](resimler/giris_yap.png) | ![Kayit ol](resimler/kayit_ol.png) |
 
-Notlar:
+### Ana akis
 
-- Buradaki `backend` reference adi, Railway uzerindeki backend servis adiyla ayni olmalidir.
-- Istersen private domain yerine backend public domain de kullanabilirsin.
+| Ana ekran | Buzdolabim | Buzdolabim (detay) |
+| --- | --- | --- |
+| ![Ana ekran](resimler/ana_ekran.png) | ![Buzdolabim](resimler/buzdolabim1.png) | ![Buzdolabim 2](resimler/buzdolabim2.png) |
 
-Healthcheck:
+| Urun tara | Yeni urun ekle |
+| --- | --- |
+| ![Urun tara](resimler/tara.png) | ![Yeni urun ekle](resimler/yeni_urun_ekle.png) |
 
-- `/health`
+| Alisveris listesi | Planla |
+| --- | --- |
+| ![Alisveris listesi](resimler/alisveris_listesi.png) | ![Planla](resimler/planla.png) |
 
-### Veritabani
+### Tarifler
 
-Backend uygulamasi su sirayla baglanti bilgisi okuyacak sekilde hazirlandi:
+| Tarif listesi | Tarif detay 1 | Tarif detay 2 |
+| --- | --- | --- |
+| ![Tarifler](resimler/tarifler.png) | ![Tarif 1](resimler/tarif1.png) | ![Tarif 2](resimler/tarif2.png) |
 
-1. `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`
-2. `SPRING_DATASOURCE_URL`
-3. `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`, `PGPASSWORD`
-4. Yerel fallback degerleri
+### Profil, bildirimler ve ayarlar
 
-## Mobil build notu
+| Profil / istatistik | Bildirimler | Ayarlar |
+| --- | --- | --- |
+| ![Profil](resimler/profil.png) | ![Bildirimler](resimler/bildirimler.png) | ![Ayarlar](resimler/ayarlar.png) |
 
-APK veya fiziksel cihaz build'lerinde backend public domain'i dogrudan verebilirsin:
+---
+
+## Depo yapisi
+
+| Klasor | Aciklama |
+| --- | --- |
+| `mutfak_asistanim/` | Flutter uygulamasi (Android, iOS, web vb.) |
+| `backend/` | Spring Boot REST API |
+| `resimler/` | README ve sunumlar icin ekran goruntuleri |
+
+---
+
+## Yerel calistirma (kisaca)
+
+**Backend:** `backend` dizininde Maven ile Spring Boot uygulamasini baslatin; `application.properties` icinde veritabani ayarlarini kullanin.
+
+**Flutter:** `mutfak_asistanim` dizininde:
+
+```bash
+flutter pub get
+flutter run
+```
+
+Mobil veya fiziksel cihazda API adresini vermek icin:
 
 ```bash
 flutter run --dart-define=API_BASE_URL=https://<backend-public-domain>
 ```
+
+---
+
+## Railway dagitimi (ozet)
+
+- **Backend servisi:** Root Directory `backend`, degiskenler: `JWT_SECRET`, PostgreSQL baglanti bilgileri (`PGHOST`, `PGPORT`, vb.). Saglik kontrolu: `/health`.
+- **Frontend servisi:** Root Directory `mutfak_asistanim`, `BACKEND_URL=http://${{backend.RAILWAY_PRIVATE_DOMAIN}}` (servis adi Railway’deki backend adiyla ayni olmali). Saglik kontrolu: `/health`.
+- Veritabani: PostgreSQL; backend sirasiyla `DB_URL` / `SPRING_DATASOURCE_URL` / `PG*` degiskenlerini okuyacak sekilde yapilandirilmistir.
